@@ -52,7 +52,8 @@ type GridLayoutProvider_statics = {
 	new: (
 		maxSpan: number,
 		getLayoutType: (index: number) -> string | number,
-		getSpan: (index: number) -> number, -- If horizontal return width while spans will be rowspans. Opposite holds true if not horizontal
+		getSpan: (index: number) -> number,
+		-- If horizontal return width while spans will be rowspans. Opposite holds true if not horizontal
 		getHeightOrWidth: (index: number) -> number,
 		acceptableRelayoutDelta: number?
 	) -> GridLayoutProvider,

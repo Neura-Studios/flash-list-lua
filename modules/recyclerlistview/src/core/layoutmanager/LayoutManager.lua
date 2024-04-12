@@ -38,7 +38,8 @@ export type LayoutManager = {
 	-- No need to relayout which RLV will trigger. You should only relayout when relayoutFromIndex is called.
 	-- Layout managers can choose to ignore the override requests like in case of grid layout where width changes
 	-- can be ignored for a vertical layout given it gets computed via the given column span.
-	overrideLayout: (self: LayoutManager, index: number, dim: Dimension) -> boolean, --Recompute layouts from given index, compute heavy stuff should be here
+	overrideLayout: (self: LayoutManager, index: number, dim: Dimension) -> boolean,
+	--Recompute layouts from given index, compute heavy stuff should be here
 	relayoutFromIndex: (self: LayoutManager, startIndex: number, itemCount: number) -> (),
 }
 

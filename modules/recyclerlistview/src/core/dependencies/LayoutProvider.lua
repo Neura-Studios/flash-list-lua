@@ -84,7 +84,7 @@ type BaseLayoutProvider_private = { --
 	--
 	-- *** PRIVATE ***
 	--
-	_lastLayoutManager: LayoutManager, --Given an index a provider is expected to return a view type which used to recycling choices
+	_lastLayoutManager: LayoutManager,
 }
 
 type BaseLayoutProvider_statics = { new: () -> BaseLayoutProvider }
