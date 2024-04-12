@@ -1,0 +1,10 @@
+[
+  {
+    "input": "/Users/brooke/Documents/NeuraStudios/flash-list-lua/upstream/recyclerlistview/src/core/layoutmanager/GridLayoutManager.ts",
+    "output": "/Users/brooke/Documents/NeuraStudios/flash-list-lua/modules/recyclerlistview/src/core/layoutmanager/GridLayoutManager.lua"
+  },
+  {
+    "input": "/Users/brooke/Documents/NeuraStudios/flash-list-lua/upstream/recyclerlistview/src/core/layoutmanager/LayoutManager.ts",
+    "output": "/Users/brooke/Documents/NeuraStudios/flash-list-lua/modules/recyclerlistview/src/core/layoutmanager/LayoutManager.lua"
+  }
+]

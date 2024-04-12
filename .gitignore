@@ -18,3 +18,5 @@ modules_*
 **/node_modules
 /build
 /roblox
+
+/upstream
