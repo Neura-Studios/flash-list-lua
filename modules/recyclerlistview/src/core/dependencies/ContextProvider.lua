@@ -8,13 +8,15 @@
 	Use this interface and implement the given methods to preserve context.
  ]]
 
+export type ContextValue = string | number | { [string | number]: any }
+
 export type ContextProvider = {
 	--- Should be of string type, anything which is unique in global scope of your application
 	getUniqueKey: (self: ContextProvider) -> string,
 	--- Let recycler view save a value, you can use apis like session storage/async storage here
-	save: (self: ContextProvider, key: string, value: string | number) -> (),
+	save: (self: ContextProvider, key: string, value: ContextValue) -> (),
 	--- Get value for a key
-	get: (self: ContextProvider, key: string) -> string | number,
+	get: (self: ContextProvider, key: string) -> ContextValue,
 	--- Remove key value pair
 	remove: (self: ContextProvider, key: string) -> (),
 }
@@ -31,7 +33,7 @@ end
 function ContextProvider:getUniqueKey(): string
 	error("not implemented abstract method")
 end
-function ContextProvider:save(key: string, value: string | number): ()
+function ContextProvider:save(key: string, value: ContextValue): ()
 	error("not implemented abstract method")
 end
 function ContextProvider:get(key: string): string | number

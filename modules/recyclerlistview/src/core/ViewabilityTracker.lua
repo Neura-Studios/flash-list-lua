@@ -1,7 +1,6 @@
 -- ROBLOX upstream: https://github.com/Flipkart/recyclerlistview/blob/1d310dffc80d63e4303bf1213d2f6b0ce498c33a/core/ViewabilityTracker.ts
 
 local LuauPolyfill = require("@pkg/@jsdotlua/luau-polyfill")
-local Array = LuauPolyfill.Array
 type Array<T> = LuauPolyfill.Array<T>
 
 local BinarySearch = require("../utils/BinarySearch")
@@ -214,7 +213,7 @@ function ViewabilityTracker_private.new(
 	local self = setmetatable({}, ViewabilityTracker)
 	self._layouts = {}
 	self._valueExtractorForBinarySearch = function(index: number): number
-		local itemRect = self._layouts[tostring(index)];
+		local itemRect = self._layouts[index];
 		(self :: any):_setRelevantBounds(itemRect, (self :: any)._relevantDim)
 		return (self :: any)._relevantDim["end"]
 	end
@@ -373,28 +372,11 @@ function ViewabilityTracker_private:_doInitialFit(
 end
 
 function ViewabilityTracker_private:_findFirstVisibleIndexLinearly(): number
-	local count = #self._layouts
-	local itemRect = nil
 	local relevantDim = { start = 0, ["end"] = 0 }
-	do
-		local i = 0
-		while
-			i
-			< count --[[ ROBLOX CHECK: operator '<' works only if either both arguments are strings or both are a number ]]
-		do
-			itemRect = self._layouts[tostring(i)]
-			self:_setRelevantBounds(itemRect, relevantDim)
-			if
-				Boolean.toJSBoolean(
-					self:_itemIntersectsVisibleWindow(
-						relevantDim.start,
-						relevantDim["end"]
-					)
-				)
-			then
-				return i
-			end
-			i += 1
+	for i, itemRect in self._layouts do
+		self:_setRelevantBounds(itemRect, relevantDim)
+		if self:_itemIntersectsVisibleWindow(relevantDim.start, relevantDim["end"]) then
+			return i
 		end
 	end
 	return 0
@@ -418,61 +400,43 @@ function ViewabilityTracker_private:_fitIndexes(
 ): ()
 	local count = #self._layouts
 	local relevantDim: Range = { start = 0, ["end"] = 0 }
-	local i = 0
 	local atLeastOneLocated = false
-	if
-		startIndex
-		< count --[[ ROBLOX CHECK: operator '<' works only if either both arguments are strings or both are a number ]]
-	then
-		if not Boolean.toJSBoolean(isReverse) then
-			i = startIndex
-			while
-				i
-				< count --[[ ROBLOX CHECK: operator '<' works only if either both arguments are strings or both are a number ]]
-			do
+	if startIndex - 1 < count then
+		if not isReverse then
+			for i = startIndex, count do
 				if
-					Boolean.toJSBoolean(
-						self:_checkIntersectionAndReport(
-							i,
-							false,
-							relevantDim,
-							newVisibleIndexes,
-							newEngagedIndexes
-						)
+					self:_checkIntersectionAndReport(
+						i,
+						false,
+						relevantDim,
+						newVisibleIndexes,
+						newEngagedIndexes
 					)
 				then
 					atLeastOneLocated = true
 				else
-					if Boolean.toJSBoolean(atLeastOneLocated) then
+					if atLeastOneLocated then
 						break
 					end
 				end
-				i += 1
 			end
 		else
-			i = startIndex
-			while
-				i
-				>= 0 --[[ ROBLOX CHECK: operator '>=' works only if either both arguments are strings or both are a number ]]
-			do
+			for i = startIndex, 1, -1 do
 				if
-					Boolean.toJSBoolean(
-						self:_checkIntersectionAndReport(
-							i,
-							true,
-							relevantDim,
-							newVisibleIndexes,
-							newEngagedIndexes
-						)
+					self:_checkIntersectionAndReport(
+						i,
+						true,
+						relevantDim,
+						newVisibleIndexes,
+						newEngagedIndexes
 					)
 				then
 					atLeastOneLocated = true
 				else
-					if Boolean.toJSBoolean(atLeastOneLocated) then
+					if atLeastOneLocated then
 						break
 					end
 				end
-				i -= 1
 			end
 		end
 	end
@@ -485,32 +449,27 @@ function ViewabilityTracker_private:_checkIntersectionAndReport(
 	newVisibleIndexes: Array<number>,
 	newEngagedIndexes: Array<number>
 ): boolean
-	local itemRect = self._layouts[tostring(index)]
+	local itemRect = self._layouts[index]
 	local isFound = false
 	self:_setRelevantBounds(itemRect, relevantDim)
-	if
-		Boolean.toJSBoolean(
-			self:_itemIntersectsVisibleWindow(relevantDim.start, relevantDim["end"])
-		)
-	then
-		if Boolean.toJSBoolean(insertOnTop) then
-			Array.splice(newVisibleIndexes, 0, 0, index) --[[ ROBLOX CHECK: check if 'newVisibleIndexes' is an Array ]]
-			Array.splice(newEngagedIndexes, 0, 0, index) --[[ ROBLOX CHECK: check if 'newEngagedIndexes' is an Array ]]
+	if self:_itemIntersectsVisibleWindow(relevantDim.start, relevantDim["end"]) then
+		if insertOnTop then
+			-- Array.splice(newVisibleIndexes, 1, 1, index)
+			-- Array.splice(newEngagedIndexes, 1, 1, index)
+			table.insert(newVisibleIndexes, 1, index)
+			table.insert(newEngagedIndexes, 1, index)
 		else
-			table.insert(newVisibleIndexes, index) --[[ ROBLOX CHECK: check if 'newVisibleIndexes' is an Array ]]
-			table.insert(newEngagedIndexes, index) --[[ ROBLOX CHECK: check if 'newEngagedIndexes' is an Array ]]
+			table.insert(newVisibleIndexes, index)
+			table.insert(newEngagedIndexes, index)
 		end
 		isFound = true
-	elseif
-		Boolean.toJSBoolean(
-			self:_itemIntersectsEngagedWindow(relevantDim.start, relevantDim["end"])
-		)
-	then
+	elseif self:_itemIntersectsEngagedWindow(relevantDim.start, relevantDim["end"]) then
 		--TODO: This needs to be optimized
-		if Boolean.toJSBoolean(insertOnTop) then
-			Array.splice(newEngagedIndexes, 0, 0, index) --[[ ROBLOX CHECK: check if 'newEngagedIndexes' is an Array ]]
+		if insertOnTop then
+			-- Array.splice(newEngagedIndexes, 1, 1, index)
+			table.insert(newEngagedIndexes, 1, index)
 		else
-			table.insert(newEngagedIndexes, index) --[[ ROBLOX CHECK: check if 'newEngagedIndexes' is an Array ]]
+			table.insert(newEngagedIndexes, index)
 		end
 		isFound = true
 	end
@@ -624,7 +583,7 @@ function ViewabilityTracker_private:_diffArraysAndCallFunc(
 		local now = self:_calculateArrayDiff(newItems, oldItems)
 		local notNow = self:_calculateArrayDiff(oldItems, newItems)
 		if #now > 0 or #notNow > 0 then
-			func(Array.concat({}, Array.spread(newItems)), now, notNow)
+			func(table.clone(newItems), now, notNow)
 		end
 	end
 end
@@ -635,16 +594,9 @@ function ViewabilityTracker_private:_calculateArrayDiff(
 ): Array<number>
 	local len = #arr1
 	local diffArr = {}
-	do
-		local i = 0
-		while
-			i
-			< len --[[ ROBLOX CHECK: operator '<' works only if either both arguments are strings or both are a number ]]
-		do
-			if BinarySearch:findIndexOf(arr2, arr1[tostring(i)]) == -1 then
-				table.insert(diffArr, arr1[tostring(i)]) --[[ ROBLOX CHECK: check if 'diffArr' is an Array ]]
-			end
-			i += 1
+	for i = 1, len do
+		if BinarySearch.findIndexOf(arr2, arr1[i]) == -1 then
+			table.insert(diffArr, arr1[i])
 		end
 	end
 	return diffArr

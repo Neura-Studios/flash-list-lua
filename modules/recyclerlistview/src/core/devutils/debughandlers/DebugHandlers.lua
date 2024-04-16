@@ -6,3 +6,5 @@ type ResizeDebugHandler = ResizeDebugHandler.ResizeDebugHandler
 export type DebugHandlers = {
     resizeDebugHandler: ResizeDebugHandler?,
 }
+
+return nil
