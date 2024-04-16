@@ -185,66 +185,66 @@ export type RecyclerListView = {
 
 	forceUpdate: (self: RecyclerListView, callback: (() -> ())?) -> (),
 
-	init: ((
+	init: (
 		self: RecyclerListView,
 		props: RecyclerListViewProps,
 		context: any?
-	) -> ())?,
+	) -> (),
 	render: (self: RecyclerListView) -> React.Node,
-	componentWillMount: ((self: RecyclerListView) -> ())?,
-	UNSAFE_componentWillMount: ((self: RecyclerListView) -> ())?,
-	componentDidMount: ((self: RecyclerListView) -> ())?,
-	componentWillReceiveProps: ((
+	componentWillMount: (self: RecyclerListView) -> (),
+	UNSAFE_componentWillMount: (self: RecyclerListView) -> (),
+	componentDidMount: (self: RecyclerListView) -> (),
+	componentWillReceiveProps: (
 		self: RecyclerListView,
 		nextProps: RecyclerListViewProps,
 		nextContext: any
-	) -> ())?,
-	UNSAFE_componentWillReceiveProps: ((
+	) -> (),
+	UNSAFE_componentWillReceiveProps: (
 		self: RecyclerListView,
 		nextProps: RecyclerListViewProps,
 		nextContext: any
-	) -> ())?,
-	shouldComponentUpdate: ((
-		self: RecyclerListView,
-		nextProps: RecyclerListViewProps,
-		nextState: RecyclerListViewProps,
-		nextContext: any
-	) -> boolean)?,
-	componentWillUpdate: ((
+	) -> (),
+	shouldComponentUpdate: (
 		self: RecyclerListView,
 		nextProps: RecyclerListViewProps,
 		nextState: RecyclerListViewProps,
 		nextContext: any
-	) -> ())?,
-	UNSAFE_componentWillUpdate: ((
+	) -> boolean,
+	componentWillUpdate: (
 		self: RecyclerListView,
 		nextProps: RecyclerListViewProps,
 		nextState: RecyclerListViewProps,
 		nextContext: any
-	) -> ())?,
-	componentDidUpdate: ((
+	) -> (),
+	UNSAFE_componentWillUpdate: (
+		self: RecyclerListView,
+		nextProps: RecyclerListViewProps,
+		nextState: RecyclerListViewProps,
+		nextContext: any
+	) -> (),
+	componentDidUpdate: (
 		self: RecyclerListView,
 		prevProps: RecyclerListViewProps,
 		prevState: RecyclerListViewProps,
 		prevContext: any
-	) -> ())?,
-	componentWillUnmount: ((self: RecyclerListView) -> ())?,
-	componentDidCatch: ((
+	) -> (),
+	componentWillUnmount: (self: RecyclerListView) -> (),
+	componentDidCatch: (
 		self: RecyclerListView,
 		error: Error,
 		info: {
 			componentStack: string,
 		}
-	) -> ())?,
-	getDerivedStateFromProps: ((
+	) -> (),
+	getDerivedStateFromProps: (
 		props: RecyclerListViewProps,
 		state: RecyclerListViewState
-	) -> RecyclerListViewState?)?,
+	) -> RecyclerListViewState?,
 	getDerivedStateFromError: ((error: Error) -> RecyclerListViewState?)?,
-	getSnapshotBeforeUpdate: ((
+	getSnapshotBeforeUpdate: (
 		props: RecyclerListViewProps,
 		state: RecyclerListViewState
-	) -> any)?,
+	) -> any,
 
 	defaultProps: RecyclerListViewProps?,
 
@@ -357,6 +357,7 @@ export type RecyclerListView = {
 
 local RecyclerListView: RecyclerListView =
 	React.Component:extend("RecyclerListView") :: any
+
 RecyclerListView.defaultProps = {
 	canChangeSize = false,
 	disableRecycling = false,
