@@ -3,6 +3,7 @@
 local LuauPolyfill = require("@pkg/@jsdotlua/luau-polyfill")
 type Array<T> = LuauPolyfill.Array<T>
 type Object = LuauPolyfill.Object
+type Error = LuauPolyfill.Error
 
 local React = require("@pkg/@jsdotlua/react")
 
@@ -50,11 +51,76 @@ export type ViewRendererProps<T> = {
 	) -> React.Node)?,
 }
 
-export type BaseViewRenderer<T> = React.AbstractComponent<ViewRendererProps<T>, {}> & {
-	isRendererMounted: boolean,
-}
+type Props = ViewRendererProps<any>
+type State = {}
 
-type BaseViewRenderer_private<T> = React.AbstractComponent<ViewRendererProps<T>, {}> & {
+export type BaseViewRenderer<T> = React.AbstractComponent<ViewRendererProps<T>, {}> & {
+	-- NOTE: We have to inline the React component types here to make Luau happy. I am sad.
+	props: Props,
+	state: State,
+
+	setState: (
+		self: BaseViewRenderer<T>,
+		partialState: State | ((State, Props) -> State?),
+		callback: (() -> ())?
+	) -> (),
+
+	forceUpdate: (self: BaseViewRenderer<T>, callback: (() -> ())?) -> (),
+
+	init: (self: BaseViewRenderer<T>, props: Props, context: any?) -> (),
+	render: (self: BaseViewRenderer<T>) -> React.Node,
+	componentWillMount: (self: BaseViewRenderer<T>) -> (),
+	UNSAFE_componentWillMount: (self: BaseViewRenderer<T>) -> (),
+	componentDidMount: (self: BaseViewRenderer<T>) -> (),
+	componentWillReceiveProps: (
+		self: BaseViewRenderer<T>,
+		nextProps: Props,
+		nextContext: any
+	) -> (),
+	UNSAFE_componentWillReceiveProps: (
+		self: BaseViewRenderer<T>,
+		nextProps: Props,
+		nextContext: any
+	) -> (),
+	shouldComponentUpdate: (
+		self: BaseViewRenderer<T>,
+		nextProps: Props,
+		nextState: Props,
+		nextContext: any
+	) -> boolean,
+	componentWillUpdate: (
+		self: BaseViewRenderer<T>,
+		nextProps: Props,
+		nextState: Props,
+		nextContext: any
+	) -> (),
+	UNSAFE_componentWillUpdate: (
+		self: BaseViewRenderer<T>,
+		nextProps: Props,
+		nextState: Props,
+		nextContext: any
+	) -> (),
+	componentDidUpdate: (
+		self: BaseViewRenderer<T>,
+		prevProps: Props,
+		prevState: Props,
+		prevContext: any
+	) -> (),
+	componentWillUnmount: (self: BaseViewRenderer<T>) -> (),
+	componentDidCatch: (
+		self: BaseViewRenderer<T>,
+		error: Error,
+		info: {
+			componentStack: string,
+		}
+	) -> (),
+	getDerivedStateFromProps: (props: Props, state: State) -> State?,
+	getDerivedStateFromError: ((error: Error) -> State?)?,
+	getSnapshotBeforeUpdate: (props: Props, state: State) -> any,
+
+	defaultProps: Props?,
+
+	--
 	-- *** PUBLIC ***
 	--
 	isRendererMounted: boolean,
@@ -62,17 +128,15 @@ type BaseViewRenderer_private<T> = React.AbstractComponent<ViewRendererProps<T>,
 	-- *** PROTECTED ***
 	--
 	animatorStyleOverrides: Object | Array<unknown> | nil,
-	getRef: (self: any) -> Object | Array<unknown> | nil,
+	getRef: (self: any) -> Frame | nil,
 	renderChild: (self: any) -> React.Node | Array<React.Node> | nil,
 }
-type BaseViewRenderer_statics = { new: <T>() -> BaseViewRenderer<T> }
 
-local BaseViewRenderer = React.Component:extend("BaseViewRenderer")
+local BaseViewRenderer =
+	React.Component:extend("BaseViewRenderer") :: BaseViewRenderer<any>
 
-function BaseViewRenderer.init<T>(): BaseViewRenderer<T>
-	local self = setmetatable({}, BaseViewRenderer)
+function BaseViewRenderer:init<T>()
 	self.isRendererMounted = true
-	return (self :: any) :: BaseViewRenderer<T>
 end
 
 function BaseViewRenderer:shouldComponentUpdate(newProps: ViewRendererProps<any>): boolean
@@ -83,12 +147,16 @@ function BaseViewRenderer:shouldComponentUpdate(newProps: ViewRendererProps<any>
 		or self.props.layoutProvider ~= newProps.layoutProvider
 
 	local hasExtendedStateChanged = self.props.extendedState ~= newProps.extendedState
-	local hasInternalSnapshotChanged = self.props.internalSnapshot ~= newProps.internalSnapshot
+	local hasInternalSnapshotChanged = self.props.internalSnapshot
+		~= newProps.internalSnapshot
 	local hasDataChanged = self.props.dataHasChanged
-		and self.props.dataHasChanged(self.props.data, newProps.data)
+			and self.props.dataHasChanged(self.props.data, newProps.data)
 		or self.props.dataHasChanged
 
-	local shouldUpdate = hasSizeChanged or hasDataChanged or hasExtendedStateChanged or hasInternalSnapshotChanged
+	local shouldUpdate = hasSizeChanged
+		or hasDataChanged
+		or hasExtendedStateChanged
+		or hasInternalSnapshotChanged
 	if shouldUpdate then
 		newProps.itemAnimator.animateWillUpdate(
 			self.props.x,
@@ -144,7 +212,7 @@ function BaseViewRenderer:componentDidUpdate(): ()
 	-- no op
 end
 
-function BaseViewRenderer:getRef(): Object | Array<unknown> | nil
+function BaseViewRenderer:getRef(): Frame | nil
 	error("not implemented abstract method")
 end
 
