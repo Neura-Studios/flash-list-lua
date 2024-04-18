@@ -2,6 +2,7 @@
 
 local LuauPolyfill = require("@pkg/@jsdotlua/luau-polyfill")
 local Error = LuauPolyfill.Error
+local extends = LuauPolyfill.extends
 
 type Error = typeof(Error.new())
 
@@ -10,13 +11,13 @@ export type Exception = {
 	type: string,
 }
 
-local CustomError = {}
-
-function CustomError.new(exception: Exception): Error
-	local self = Error.new(`{exception.type}: {exception.message}`)
-	self.name = exception.type
-
-	return self
-end
+local CustomError = extends(
+	Error,
+	"CustomError",
+	function(this: Error, exception: Exception)
+		this.name = exception.type
+		this.message = exception.message
+	end
+)
 
 return CustomError
