@@ -67,16 +67,8 @@ type BaseItemAnimator = BaseItemAnimator.BaseItemAnimator
 local DebugHandlers = require("./devutils/debughandlers/DebugHandlers")
 type DebugHandlers = DebugHandlers.DebugHandlers
 
--- local ComponentCompat = require(script.Parent.Parent.utils.ComponentCompat).ComponentCompat --#if [REACT-NATIVE]
--- local ScrollComponent =
--- 	require(script.Parent.Parent.platform.reactnative.scrollcomponent.ScrollComponent).default
--- local ViewRenderer =
--- 	require(script.Parent.Parent.platform.reactnative.viewrenderer.ViewRenderer).default
--- local DefaultItemAnimator = require(
--- 	script.Parent.Parent.platform.reactnative.itemanimators.defaultjsanimator.DefaultJSItemAnimator
--- ).DefaultJSItemAnimator
--- local Platform = require(Packages["react-native"]).Platform
--- local IS_WEB = not Boolean.toJSBoolean(Platform) or Platform.OS == "web" --#endif
+local ScrollComponent = require("../platform/roblox/scrollcomponent/ScrollComponent")
+local ViewRenderer = require("../platform/roblox/viewrenderer/ViewRenderer")
 
 --[[**
  * This is the main component, please refer to samples to understand how to use.

@@ -21,7 +21,7 @@ type State = {}
 
 --[[**
  * View renderer is responsible for creating a container of size provided by LayoutProvider and render content inside it.
- * Also enforces a logic to prevent re renders. RecyclerListView keeps moving these ViewRendereres around using transforms to enable recycling.
+ * Also enforces a logic to prevent re renders. RecyclerListView keeps moving these ViewRenderers around using transforms to enable recycling.
  * View renderer will only update if its position, dimensions or given data changes. Make sure to have a relevant shouldComponentUpdate as well.
  * This is second of the two things recycler works on. Implemented both for web and react native.
  ]]
@@ -143,9 +143,26 @@ end
 function ViewRenderer:render()
 	local self = self :: ViewRenderer
 
-	local styleProps = if self.props.forceNonDeterministicRendering then {} else {}
+	-- ROBLOX deviation: Upstream uses a lot of flexbox properties. I'm avoiding this for now to keep complexity low.
+	-- However, our implementation below might not be correct.
+	local styleProps = if self.props.forceNonDeterministicRendering
+		then {
+			Position = UDim2.fromOffset(self.props.x, self.props.y),
+			-- TODO: Is this correct?
+			AutomaticSize = Enum.AutomaticSize.XY,
+		}
+		else {
+			Position = UDim2.fromOffset(self.props.x, self.props.y),
+			Size = UDim2.fromOffset(self.props.width, self.props.height),
+			ClipsDescendants = true,
+		}
 
-	local props = Object.assign({ ref = self._setRef }, styleProps)
+	local props = Object.assign(
+		{ ref = self._setRef },
+		styleProps,
+		self.props.styleOverrides,
+		self.animatorStyleOverrides
+	)
 
 	return self:_renderItemContainer(props, self.props, self:renderChild())
 end
