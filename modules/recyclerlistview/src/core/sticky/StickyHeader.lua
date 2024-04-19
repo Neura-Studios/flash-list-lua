@@ -61,8 +61,9 @@ type StickyHeader_statics = {
 	new: (props: StickyObjectProps, context: any?) -> StickyHeader,
 }
 
+local noop = function() end
 local StickyHeader =
-	extends(StickyObject, "StickyHeader") :: StickyHeader_private & StickyHeader_statics
+	extends(StickyObject, "StickyHeader", noop) :: StickyHeader_private & StickyHeader_statics
 
 function StickyHeader:onScroll(offsetY: number)
 	local startCorrection = self:getWindowCorrection(self.props).startCorrection

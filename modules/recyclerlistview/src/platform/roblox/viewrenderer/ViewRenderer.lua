@@ -112,7 +112,8 @@ export type ViewRenderer = BaseViewRenderer<any> & {
 	_onItemRendered: (self: ViewRenderer) -> (),
 }
 
-local ViewRenderer = extends(BaseViewRenderer, "ViewRenderer") :: ViewRenderer
+local noop = function() end
+local ViewRenderer = extends(BaseViewRenderer, "ViewRenderer", noop) :: ViewRenderer
 
 function ViewRenderer:init()
 	local self = self :: ViewRenderer

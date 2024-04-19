@@ -4,7 +4,6 @@
 
 local LuauPolyfill = require("@pkg/@jsdotlua/luau-polyfill")
 local Object = LuauPolyfill.Object
-local extends = LuauPolyfill.extends
 type Error = LuauPolyfill.Error
 
 local React = require("@pkg/@jsdotlua/react")
@@ -103,12 +102,13 @@ export type ScrollComponent = BaseScrollComponent & {
 	--
 	_height: number,
 	_width: number,
-	_scrollViewRef: BaseScrollView | nil,--[[ ROBLOX CHECK: verify if `null` wasn't used differently than `undefined` ]]
+	_scrollViewRef: BaseScrollView | nil,
 	_onScroll: any,
 	_onSizeChanged: any,
 }
 
-local ScrollComponent = extends(BaseScrollComponent, "ScrollComponent") :: ScrollComponent
+-- ROBLOX deviation: Inheritance isn't supported for React-lua components. We won't extend off the bass component.
+local ScrollComponent = React.Component:extend("ScrollComponent") :: ScrollComponent
 
 ScrollComponent.defaultProps = {
     contentHeight = 0,
@@ -131,8 +131,6 @@ function ScrollComponent:init(props: Props)
 			props.onSizeChanged(event)
 		end
 	end
-
-	BaseScrollComponent.init(self, props)
 
 	self._height = 0
 	self._width = 0
@@ -175,6 +173,10 @@ function ScrollComponent:render()
 			BackgroundTransparency = 1,
 		}, self.props.children, footerChild),
 	})
+end
+
+function ScrollComponent:getScrollableNode()
+	return nil
 end
 
 return ScrollComponent

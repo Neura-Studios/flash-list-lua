@@ -55,7 +55,7 @@ export type VirtualRenderer = {
 		callback: TOnItemStatusChanged
 	) -> (),
 	removeVisibleItemsListener: (self: VirtualRenderer) -> (),
-	getLayoutManager: (self: VirtualRenderer) -> LayoutManager | nil,--[[ ROBLOX CHECK: verify if `null` wasn't used differently than `undefined` ]]
+	getLayoutManager: (self: VirtualRenderer) -> LayoutManager | nil,
 	setParamsAndDimensions: (
 		self: VirtualRenderer,
 		params: RenderStackParams,
@@ -63,7 +63,7 @@ export type VirtualRenderer = {
 	) -> (),
 	setLayoutManager: (self: VirtualRenderer, layoutManager: LayoutManager) -> (),
 	setLayoutProvider: (self: VirtualRenderer, layoutProvider: BaseLayoutProvider) -> (),
-	getViewabilityTracker: (self: VirtualRenderer) -> ViewabilityTracker | nil,--[[ ROBLOX CHECK: verify if `null` wasn't used differently than `undefined` ]]
+	getViewabilityTracker: (self: VirtualRenderer) -> ViewabilityTracker | nil,
 	refreshWithAnchor: (self: VirtualRenderer) -> (),
 	refresh: (self: VirtualRenderer) -> (),
 	getInitialOffset: (self: VirtualRenderer) -> Point,
@@ -102,7 +102,7 @@ type VirtualRenderer_private = { --
 		callback: TOnItemStatusChanged
 	) -> (),
 	removeVisibleItemsListener: (self: VirtualRenderer_private) -> (),
-	getLayoutManager: (self: VirtualRenderer_private) -> LayoutManager | nil,--[[ ROBLOX CHECK: verify if `null` wasn't used differently than `undefined` ]]
+	getLayoutManager: (self: VirtualRenderer_private) -> LayoutManager | nil,
 	setParamsAndDimensions: (
 		self: VirtualRenderer_private,
 		params: RenderStackParams,
@@ -113,7 +113,7 @@ type VirtualRenderer_private = { --
 		self: VirtualRenderer_private,
 		layoutProvider: BaseLayoutProvider
 	) -> (),
-	getViewabilityTracker: (self: VirtualRenderer_private) -> ViewabilityTracker | nil,--[[ ROBLOX CHECK: verify if `null` wasn't used differently than `undefined` ]]
+	getViewabilityTracker: (self: VirtualRenderer_private) -> ViewabilityTracker | nil,
 	refreshWithAnchor: (self: VirtualRenderer_private) -> (),
 	refresh: (self: VirtualRenderer_private) -> (),
 	getInitialOffset: (self: VirtualRenderer_private) -> Point,
@@ -136,7 +136,7 @@ type VirtualRenderer_private = { --
 	--
 	-- *** PRIVATE ***
 	--
-	onVisibleItemsChanged: TOnItemStatusChanged | nil,--[[ ROBLOX CHECK: verify if `null` wasn't used differently than `undefined` ]]
+	onVisibleItemsChanged: TOnItemStatusChanged | nil,
 	_scrollOnNextUpdate: (point: Point) -> (),
 	_stableIdToRenderKeyMap: { [string]: StableIdMapItem | nil },
 	_engagedIndexes: { [number]: number | nil },
@@ -149,10 +149,10 @@ type VirtualRenderer_private = { --
 	_startKey: number,
 	_layoutProvider: BaseLayoutProvider, --TSI
 	_recyclePool: RecycleItemPool, --TSI
-	_params: RenderStackParams | nil,--[[ ROBLOX CHECK: verify if `null` wasn't used differently than `undefined` ]]
-	_layoutManager: LayoutManager | nil,--[[ ROBLOX CHECK: verify if `null` wasn't used differently than `undefined` ]]
-	_viewabilityTracker: ViewabilityTracker | nil,--[[ ROBLOX CHECK: verify if `null` wasn't used differently than `undefined` ]]
-	_dimensions: Dimension | nil,--[[ ROBLOX CHECK: verify if `null` wasn't used differently than `undefined` ]]
+	_params: RenderStackParams | nil,
+	_layoutManager: LayoutManager | nil,
+	_viewabilityTracker: ViewabilityTracker | nil,
+	_dimensions: Dimension | nil,
 	_optimizeForAnimations: boolean,
 	_getCollisionAvoidingKey: (self: VirtualRenderer_private) -> string,
 	_prepareViewabilityTracker: (self: VirtualRenderer_private) -> (),
@@ -334,7 +334,7 @@ end
 function VirtualRenderer_private:setLayoutManager(layoutManager: LayoutManager): ()
 	self._layoutManager = layoutManager
 	if self._params then
-		layoutManager:relayoutFromIndex(0, self._params.itemCount)
+		layoutManager:relayoutFromIndex(1, self._params.itemCount)
 	end
 end
 
@@ -342,7 +342,7 @@ function VirtualRenderer_private:setLayoutProvider(layoutProvider: BaseLayoutPro
 	self._layoutProvider = layoutProvider
 end
 
-function VirtualRenderer_private:getViewabilityTracker(): ViewabilityTracker | nil --[[ ROBLOX CHECK: verify if `null` wasn't used differently than `undefined` ]]
+function VirtualRenderer_private:getViewabilityTracker(): ViewabilityTracker | nil
 	return self._viewabilityTracker
 end
 

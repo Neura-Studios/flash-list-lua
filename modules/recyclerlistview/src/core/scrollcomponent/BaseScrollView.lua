@@ -12,7 +12,6 @@ export type ScrollViewDefaultProps = {
 	horizontal: boolean,
 	canChangeSize: boolean,
 	style: Map<string, any>,
-	useWindowScroll: boolean,
 }
 
 export type ScrollEvent = {

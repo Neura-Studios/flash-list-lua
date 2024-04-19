@@ -115,7 +115,6 @@ export type RecyclerListViewProps = {
 	initialRenderIndex: number?,
 	scrollThrottle: number?,
 	canChangeSize: boolean?,
-	useWindowScroll: boolean?,
 	disableRecycling: boolean?,
 	forceNonDeterministicRendering: boolean?,
 	extendedState: (Object | Array<unknown>)?,
@@ -292,12 +291,12 @@ export type RecyclerListView = {
 	_relayoutReqIndex: number,
 	_params: RenderStackParams,
 	_layout: Dimension,
-	_pendingScrollToOffset: Point | nil,--[[ ROBLOX CHECK: verify if `null` wasn't used differently than `undefined` ]]
+	_pendingScrollToOffset: Point | nil,
 	_pendingRenderStack: RenderStack,
 	_tempDim: Dimension,
 	_initialOffset: number,
 	_cachedLayouts: Array<Layout>,
-	_scrollComponent: BaseScrollComponent | nil,--[[ ROBLOX CHECK: verify if `null` wasn't used differently than `undefined` ]]
+	_scrollComponent: BaseScrollComponent | nil,
 	_windowCorrectionConfig: WindowCorrectionConfig, --If the native content container is used, then positions of the list items are changed on the native side. The animated library used
 	--by the default item animator also changes the same positions which could lead to inconsistency. Hence, the base item animator which
 	--does not perform any such animations will be used.
@@ -990,7 +989,7 @@ function RecyclerListView:_getWindowCorrection(
 			offsetY,
 			self._windowCorrectionConfig.value
 		)
-	) and self._windowCorrectionConfig.value :: any
+	) or self._windowCorrectionConfig.value
 end
 
 function RecyclerListView:_assertDependencyPresence(props: RecyclerListViewProps): ()

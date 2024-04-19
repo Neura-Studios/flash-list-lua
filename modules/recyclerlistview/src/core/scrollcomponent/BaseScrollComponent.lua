@@ -21,7 +21,6 @@ export type ScrollComponentProps = {
 	isHorizontal: boolean?,
 	renderFooter: (() -> React.Node | Array<React.Node> | nil)?,
 	scrollThrottle: number?,
-	useWindowScroll: boolean?,
 	onLayout: any?,
 	renderContentContainer: ((
 		props: (Object | Array<unknown>)?,

@@ -334,8 +334,8 @@ end
 function WrapGridLayoutManager_private:_locateFirstNeighbourIndex(
 	startIndex: number
 ): number
-	if startIndex == 0 then
-		return 0
+	if startIndex == 1 then
+		return 1
 	end
 	local i = startIndex
 	while i > 0 do

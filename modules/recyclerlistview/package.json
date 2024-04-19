@@ -17,6 +17,7 @@
       "@jsdotlua/react": "^17.1.0"
     },
     "devDependencies": {
+      "@jsdotlua/react-roblox": "^17.1.0",
       "npmluau": "^0.1.0"
     }
   }

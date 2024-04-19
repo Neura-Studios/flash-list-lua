@@ -189,7 +189,7 @@ type ViewabilityTracker_private = { --
 		self: ViewabilityTracker_private,
 		newItems: Array<number>,
 		oldItems: Array<number>,
-		func: TOnItemStatusChanged | nil --[[ ROBLOX CHECK: verify if `null` wasn't used differently than `undefined` ]]
+		func: TOnItemStatusChanged | nil
 	) -> (), --TODO:Talha since arrays are sorted this can be much faster
 	_calculateArrayDiff: (
 		self: ViewabilityTracker_private,

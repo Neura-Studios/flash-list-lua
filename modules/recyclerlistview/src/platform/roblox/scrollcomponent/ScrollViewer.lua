@@ -115,23 +115,22 @@ export type ScrollViewer = BaseScrollView & {
 	) -> number,
 }
 
-local ScrollViewer = extends(BaseScrollView, "ScrollViewer") :: ScrollViewer
+-- ROBLOX deviation: Inheritance isn't supported for React-lua components. We won't extend off the bass component.
+local ScrollViewer = React.Component:extend("ScrollViewer") :: ScrollViewer
 
 ScrollViewer.defaultProps = {
 	canChangeSize = false,
 	horizontal = false,
 	style = nil,
-	useWindowScroll = false,
 } :: any
 
 function ScrollViewer:init(props: Props)
 	local self = self :: ScrollViewer
 	BaseScrollView.init(self, props)
-
-	self._mainDivRef = nil
+	self._mainFrameRef = nil
 
 	self._setFrameRef = function(frame: ScrollingFrame | nil)
-		self._mainDivRef = frame
+		self._mainFrameRef = frame
 	end
 
 	self._getRelevantOffset = function(): number
@@ -159,17 +158,17 @@ function ScrollViewer:init(props: Props)
 
 	self._onScroll = function(scrollEvent: ScrollEvent)
 		if self.props.onScroll then
-			self.props.onScroll(normalizeScrollEvent(self._mainDivRef).divEvent)
+			self.props.onScroll(normalizeScrollEvent(self._mainFrameRef).divEvent)
 		end
 	end
 end
 
 function ScrollViewer:componentDidMount(): ()
 	local self = self :: ScrollViewer
-	if self.props.onSizeChanged then
+	if self.props.onSizeChanged and self._mainFrameRef then
 		self.props.onSizeChanged({
-			height = self._mainDivRef.clientHeight,
-			width = self._mainDivRef.clientWidth,
+			height = self._mainFrameRef.AbsoluteSize.Y,
+			width = self._mainFrameRef.AbsoluteSize.X,
 		})
 	end
 end

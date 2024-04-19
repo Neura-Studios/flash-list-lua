@@ -62,8 +62,9 @@ type ProgressiveListView_private = RecyclerListView & {
 }
 type ProgressiveListView_statics = { new: () -> ProgressiveListView }
 
+local noop = function() end
 local ProgressiveListView =
-	extends(RecyclerListView, "ProgressiveListView") :: ProgressiveListView_private & ProgressiveListView_statics
+	extends(RecyclerListView, "ProgressiveListView", noop) :: ProgressiveListView_private & ProgressiveListView_statics
 
 ProgressiveListView.defaultProps = Object.assign(
 	{},

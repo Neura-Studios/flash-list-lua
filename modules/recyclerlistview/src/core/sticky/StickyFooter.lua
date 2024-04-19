@@ -129,8 +129,9 @@ type StickyFooter_private = StickyObject & {
 }
 type StickyFooter_statics = { new: <P>(props: P, context: any?) -> StickyFooter }
 
+local noop = function() end
 local StickyFooter =
-	extends(StickyObject, "StickyFooter") :: StickyFooter_private & StickyFooter_statics
+	extends(StickyObject, "StickyFooter", noop) :: StickyFooter_private & StickyFooter_statics
 
 function StickyFooter:onScroll(offsetY: number): ()
 	local endCorrection = self:getWindowCorrection(self.props).endCorrection

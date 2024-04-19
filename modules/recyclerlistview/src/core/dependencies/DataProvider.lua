@@ -170,7 +170,31 @@ export type DataProvider = BaseDataProvider & {
 	) -> BaseDataProvider,
 }
 
-local DataProvider = extends(BaseDataProvider, "DataProvider")
+local DataProvider = extends(
+	BaseDataProvider,
+	"DataProvider",
+	function(
+		self: any,
+		rowHasChanged: (r1: any, r2: any) -> boolean,
+		getStableId: ((index: number) -> string)?
+	)
+		self._firstIndexToProcess = 0
+		self._size = 0
+		self._data = {}
+		self._hasStableIds = false
+		self._requiresDataChangeHandling = false
+		self.rowHasChanged = rowHasChanged
+
+		if getStableId then
+			self.getStableId = getStableId
+			self._hasStableIds = true
+		else
+			self.getStableId = function(index)
+				return tostring(index)
+			end
+		end
+	end
+)
 
 function DataProvider:newInstance(
 	rowHasChanged: (r1: any, r2: any) -> boolean,
