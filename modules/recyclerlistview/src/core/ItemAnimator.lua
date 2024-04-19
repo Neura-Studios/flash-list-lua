@@ -55,12 +55,12 @@ export type BaseItemAnimator = {
 		atX: number,
 		atY: number,
 		itemIndex: number
-	) -> Object | Array<unknown> | nil,
+	) -> GuiObject?,
 	animateDidMount: (
 		self: BaseItemAnimator,
 		atX: number,
 		atY: number,
-		itemRef: Object | Array<unknown>,
+		itemRef: GuiObject,
 		itemIndex: number
 	) -> (),
 	animateWillUpdate: (
@@ -69,7 +69,7 @@ export type BaseItemAnimator = {
 		fromY: number,
 		toX: number,
 		toY: number,
-		itemRef: Object | Array<unknown>,
+		itemRef: GuiObject,
 		itemIndex: number
 	) -> (),
 	animateShift: (
@@ -78,14 +78,14 @@ export type BaseItemAnimator = {
 		fromY: number,
 		toX: number,
 		toY: number,
-		itemRef: Object | Array<unknown>,
+		itemRef: GuiObject,
 		itemIndex: number
 	) -> boolean,
 	animateWillUnmount: (
 		self: BaseItemAnimator,
 		atX: number,
 		atY: number,
-		itemRef: Object | Array<unknown>,
+		itemRef: GuiObject,
 		itemIndex: number
 	) -> (),
 }
@@ -104,14 +104,14 @@ function BaseItemAnimator:animateWillMount(
 	atX: number,
 	atY: number,
 	itemIndex: number
-): Object | Array<unknown> | nil
+): GuiObject?
 	return nil
 end
 
 function BaseItemAnimator:animateDidMount(
 	atX: number,
 	atY: number,
-	itemRef: Object | Array<unknown>,
+	itemRef: GuiObject,
 	itemIndex: number
 ): ()
 	--no need
@@ -122,7 +122,7 @@ function BaseItemAnimator:animateWillUpdate(
 	fromY: number,
 	toX: number,
 	toY: number,
-	itemRef: Object | Array<unknown>,
+	itemRef: GuiObject,
 	itemIndex: number
 ): ()
 	--no need
@@ -133,7 +133,7 @@ function BaseItemAnimator:animateShift(
 	fromY: number,
 	toX: number,
 	toY: number,
-	itemRef: Object | Array<unknown>,
+	itemRef: GuiObject,
 	itemIndex: number
 ): boolean
 	return false
@@ -142,7 +142,7 @@ end
 function BaseItemAnimator:animateWillUnmount(
 	atX: number,
 	atY: number,
-	itemRef: Object | Array<unknown>,
+	itemRef: GuiObject,
 	itemIndex: number
 ): ()
 	--no need

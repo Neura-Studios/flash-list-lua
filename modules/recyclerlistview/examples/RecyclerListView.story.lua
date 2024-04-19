@@ -14,6 +14,14 @@ local ViewTypes = {
 	HALF_RIGHT = 2,
 }
 
+local function generateArray(n: number)
+	local arr = table.create(n)
+	for i = 1, n do
+		arr[i] = i
+	end
+	return arr
+end
+
 local containerCount = 0
 
 local function CellContainer(props)
@@ -26,9 +34,11 @@ local function StoryComponent()
 	-- Create the data provider and provide method which takes in two rows of
 	-- data and return if those two are different or not.
 	local dataProvider = useMemo(function()
-		return RecyclerListView.DataProvider.new(function(r1, r2)
+		local dataProvider = RecyclerListView.DataProvider.new(function(r1, r2)
 			return r1 ~= r2
 		end)
+
+		return dataProvider:cloneWithRows(generateArray(300))
 	end, {})
 
 	-- Create the layout provider
@@ -67,20 +77,20 @@ local function StoryComponent()
 		end)
 	end, {})
 
-    return e("Frame", {
+	return e("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
-        Size = UDim2.new(0, width, 1, 0),
-        BackgroundColor3 = Color3.new(0.6, 0.6, 0.6),
-    }, {
+		Size = UDim2.new(0, width, 1, 0),
+		BackgroundColor3 = Color3.new(0.6, 0.6, 0.6),
+		BackgroundTransparency = 1,
+	}, {
 		List = e(RecyclerListView.RecyclerListView, {
 			layoutProvider = layoutProvider,
 			dataProvider = dataProvider,
 			rowRenderer = function(...)
-				print("rowRenderer", ...)
 				return e(React.Fragment)
-			end
-		})
+			end,
+		}),
 	})
 end
 

@@ -446,11 +446,12 @@ function VirtualRenderer_private:syncAndGetKey(
 				end
 			end
 		else
-			local key = getStableId(index)
+			key = getStableId(index)
+			local key = key :: string
 			if renderStack[key] then
 				--Probable collision, warn and avoid
 				--TODO: Disabled incorrectly triggering in some cases
-				--console.warn("Possible stableId collision @", index); //tslint:disable-line
+				--console.warn(`Possible stableId collision @ {index}`)
 				key = self:_getCollisionAvoidingKey()
 			end
 			renderStack[key] = { dataIndex = index }

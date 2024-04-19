@@ -190,7 +190,7 @@ function BaseViewRenderer:componentDidMount(): ()
 	)
 end
 
-function BaseViewRenderer:componentWillMount(): ()
+function BaseViewRenderer:UNSAFE_componentWillMount(): ()
 	self.animatorStyleOverrides = self.props.itemAnimator:animateWillMount(
 		self.props.x,
 		self.props.y,

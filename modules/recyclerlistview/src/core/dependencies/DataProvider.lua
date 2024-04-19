@@ -11,6 +11,11 @@ local exports = {}
 	Allows access to data and size. Clone with rows creates a new data provider and let listview know where to calculate row layout from.
  ]]
 export type BaseDataProvider = {
+	new: (
+		rowHasChanged: (r1: any, r2: any) -> boolean,
+		getStableId: ((index: number) -> string)?
+	) -> BaseDataProvider,
+
 	rowHasChanged: (r1: any, r2: any) -> boolean,
 	--- In JS context make sure stable id is a string
 	getStableId: (index: number) -> string,
@@ -32,29 +37,7 @@ export type BaseDataProvider = {
 		newData: Array<any>,
 		firstModifiedIndex: number?
 	) -> DataProvider,
-}
 
-type BaseDataProvider_private = { --
-	-- *** PUBLIC ***
-	--
-	rowHasChanged: (r1: any, r2: any) -> boolean,
-	getStableId: (index: number) -> string,
-	newInstance: (
-		self: BaseDataProvider_private,
-		rowHasChanged: (r1: any, r2: any) -> boolean,
-		getStableId: ((index: number) -> string)?
-	) -> BaseDataProvider,
-	getDataForIndex: (self: BaseDataProvider_private, index: number) -> any,
-	getAllData: (self: BaseDataProvider_private) -> Array<any>,
-	getSize: (self: BaseDataProvider_private) -> number,
-	hasStableIds: (self: BaseDataProvider_private) -> boolean,
-	requiresDataChangeHandling: (self: BaseDataProvider_private) -> boolean,
-	getFirstIndexToProcessInternal: (self: BaseDataProvider_private) -> number,
-	cloneWithRows: (
-		self: BaseDataProvider_private,
-		newData: Array<any>,
-		firstModifiedIndex: number?
-	) -> DataProvider,
 	--
 	-- *** PRIVATE ***
 	--
@@ -64,19 +47,11 @@ type BaseDataProvider_private = { --
 	_hasStableIds: boolean,
 	_requiresDataChangeHandling: boolean,
 }
-type BaseDataProvider_statics = {
-	new: (
-		rowHasChanged: (r1: any, r2: any) -> boolean,
-		getStableId: ((index: number) -> string)?
-	) -> BaseDataProvider,
-}
 
-local BaseDataProvider = {} :: BaseDataProvider & BaseDataProvider_statics
-local BaseDataProvider_private =
-	BaseDataProvider :: BaseDataProvider_private & BaseDataProvider_statics;
+local BaseDataProvider = {} :: BaseDataProvider
 (BaseDataProvider :: any).__index = BaseDataProvider
 
-function BaseDataProvider_private.new(
+function BaseDataProvider.new(
 	rowHasChanged: (r1: any, r2: any) -> boolean,
 	getStableId: ((index: number) -> string)?
 ): BaseDataProvider
@@ -98,45 +73,45 @@ function BaseDataProvider_private.new(
 	return (self :: any) :: BaseDataProvider
 end
 
-function BaseDataProvider_private:newInstance(
+function BaseDataProvider:newInstance(
 	rowHasChanged: (r1: any, r2: any) -> boolean,
 	getStableId: ((index: number) -> string)?
 ): BaseDataProvider
 	error("not implemented abstract method")
 end
 
-function BaseDataProvider_private:getDataForIndex(index: number): any
+function BaseDataProvider:getDataForIndex(index: number): any
 	return self._data[index]
 end
 
-function BaseDataProvider_private:getAllData(): Array<any>
+function BaseDataProvider:getAllData(): Array<any>
 	return self._data
 end
 
-function BaseDataProvider_private:getSize(): number
+function BaseDataProvider:getSize(): number
 	return self._size
 end
 
-function BaseDataProvider_private:hasStableIds(): boolean
+function BaseDataProvider:hasStableIds(): boolean
 	return self._hasStableIds
 end
 
-function BaseDataProvider_private:requiresDataChangeHandling(): boolean
+function BaseDataProvider:requiresDataChangeHandling(): boolean
 	return self._requiresDataChangeHandling
 end
 
-function BaseDataProvider_private:getFirstIndexToProcessInternal(): number
+function BaseDataProvider:getFirstIndexToProcessInternal(): number
 	return self._firstIndexToProcess
 end
 
-function BaseDataProvider_private:cloneWithRows(
+function BaseDataProvider:cloneWithRows(
 	newData: Array<any>,
 	firstModifiedIndex: number?
 ): DataProvider
 	local dp = self:newInstance(
 		self.rowHasChanged,
 		if self._hasStableIds then self.getStableId else nil
-	) :: BaseDataProvider_private
+	) :: BaseDataProvider
 
 	local newSize = #newData
 	local iterCount = math.min(self._size, newSize)
@@ -157,6 +132,7 @@ function BaseDataProvider_private:cloneWithRows(
 	end
 	dp._data = newData
 	dp._size = newSize
+
 	return (dp :: any) :: DataProvider
 end
 

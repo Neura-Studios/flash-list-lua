@@ -233,7 +233,7 @@ function StickyObject:init(props)
 	self._windowCorrection = { startCorrection = 0, endCorrection = 0, windowShift = 0 }
 end
 
-function StickyObject:componentWillReceiveProps(newProps: StickyObjectProps): ()
+function StickyObject:UNSAFE_componentWillReceiveProps(newProps: StickyObjectProps): ()
 	self:_updateDimensionParams()
 	self:calculateVisibleStickyIndex(
 		newProps.stickyIndices,

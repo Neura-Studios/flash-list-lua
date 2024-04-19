@@ -4,7 +4,6 @@
 
 local LuauPolyfill = require("@pkg/@jsdotlua/luau-polyfill")
 local Object = LuauPolyfill.Object
-local extends = LuauPolyfill.extends
 type Array<T> = LuauPolyfill.Array<T>
 type Object = LuauPolyfill.Object
 type Error = LuauPolyfill.Error
@@ -112,8 +111,7 @@ export type ViewRenderer = BaseViewRenderer<any> & {
 	_onItemRendered: (self: ViewRenderer) -> (),
 }
 
-local noop = function() end
-local ViewRenderer = extends(BaseViewRenderer, "ViewRenderer", noop) :: ViewRenderer
+local ViewRenderer = React.Component:extend("ViewRenderer") :: ViewRenderer
 
 function ViewRenderer:init()
 	local self = self :: ViewRenderer
@@ -129,7 +127,14 @@ end
 
 function ViewRenderer:componentDidMount(): ()
 	local self = self :: ViewRenderer
-	BaseViewRenderer.componentDidMount(self)
+
+	self.animatorStyleOverrides = nil
+	self.props.itemAnimator:animateDidMount(
+		self.props.x,
+		self.props.y,
+		self:getRef(),
+		self.props.index
+	)
 
 	self:_checkSizeChange()
 end
@@ -221,6 +226,74 @@ function ViewRenderer:_onItemRendered(): ()
 	if onItemLayout then
 		onItemLayout(self.props.index)
 	end
+end
+
+function ViewRenderer:shouldComponentUpdate(newProps: ViewRendererProps<any>): boolean
+	local hasMoved = self.props.x ~= newProps.x or self.props.y ~= newProps.y
+
+	local hasSizeChanged = not newProps.forceNonDeterministicRendering
+			and (self.props.width ~= newProps.width or self.props.height ~= newProps.height)
+		or self.props.layoutProvider ~= newProps.layoutProvider
+
+	local hasExtendedStateChanged = self.props.extendedState ~= newProps.extendedState
+	local hasInternalSnapshotChanged = self.props.internalSnapshot
+		~= newProps.internalSnapshot
+	local hasDataChanged = self.props.dataHasChanged
+			and self.props.dataHasChanged(self.props.data, newProps.data)
+		or self.props.dataHasChanged
+
+	local shouldUpdate = hasSizeChanged
+		or hasDataChanged
+		or hasExtendedStateChanged
+		or hasInternalSnapshotChanged
+	if shouldUpdate then
+		newProps.itemAnimator.animateWillUpdate(
+			self.props.x,
+			self.props.y,
+			newProps.x,
+			newProps.y,
+			self:getRef(),
+			newProps.index
+		)
+	elseif hasMoved then
+		shouldUpdate = not newProps.itemAnimator.animateShift(
+			self.props.x,
+			self.props.y,
+			newProps.x,
+			newProps.y,
+			self:getRef(),
+			newProps.index
+		)
+	end
+
+	return shouldUpdate
+end
+
+function ViewRenderer:UNSAFE_componentWillMount(): ()
+	self.animatorStyleOverrides = self.props.itemAnimator:animateWillMount(
+		self.props.x,
+		self.props.y,
+		self.props.index
+	)
+end
+
+function ViewRenderer:componentWillUnmount(): ()
+	self.isRendererMounted = false
+	self.props.itemAnimator:animateWillUnmount(
+		self.props.x,
+		self.props.y,
+		self:getRef() :: Object | Array<unknown>,
+		self.props.index
+	)
+end
+
+function ViewRenderer:renderChild(): React.Node
+	return self.props:childRenderer(
+		self.props.layoutType,
+		self.props.data,
+		self.props.index,
+		self.props.extendedState
+	)
 end
 
 return ViewRenderer

@@ -554,7 +554,9 @@ function RecyclerListView:init(props)
 	return (self :: any) :: RecyclerListView
 end
 
-function RecyclerListView:componentWillReceiveProps(newProps: RecyclerListViewProps): ()
+function RecyclerListView:UNSAFE_componentWillReceiveProps(
+	newProps: RecyclerListViewProps
+): ()
 	self:_assertDependencyPresence(newProps)
 	self:_checkAndChangeLayouts(newProps)
 	if not newProps.onVisibleIndicesChanged then
@@ -758,7 +760,8 @@ function RecyclerListView:render()
 					else 0,
 				renderAheadOffset = self:getCurrentRenderAheadOffset(),
 			}
-		)
+		),
+		self:_generateRenderStack()
 	)
 end
 
@@ -1007,7 +1010,7 @@ end
 function RecyclerListView:_renderRowUsingMeta(itemMeta: RenderStackItem): React.Node | nil
 	local dataSize = self.props.dataProvider:getSize()
 	local dataIndex = itemMeta.dataIndex
-	if dataIndex ~= nil and dataIndex < dataSize then
+	if dataIndex ~= nil and dataIndex <= dataSize then
 		local itemRect = (self._virtualRenderer:getLayoutManager() :: LayoutManager):getLayouts()[dataIndex]
 		local data = self.props.dataProvider:getDataForIndex(dataIndex)
 		local type_ = self.props.layoutProvider:getLayoutTypeForIndex(dataIndex)
@@ -1063,14 +1066,9 @@ end
 
 function RecyclerListView:_generateRenderStack(): Array<React.Node | nil>
 	local renderedItems = {}
-	if self.state then
-		for key in self.state.renderStack do
-			if self.state.renderStack[key] ~= nil then
-				table.insert(
-					renderedItems,
-					self:_renderRowUsingMeta(self.state.renderStack[key])
-				)
-			end
+	if self.state and self.state.renderStack then
+		for key, stackItem in self.state.renderStack do
+			table.insert(renderedItems, self:_renderRowUsingMeta(stackItem))
 		end
 	end
 	return renderedItems
