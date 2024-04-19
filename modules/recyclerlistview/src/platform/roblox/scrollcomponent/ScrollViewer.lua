@@ -4,7 +4,6 @@
 
 local LuauPolyfill = require("@pkg/@jsdotlua/luau-polyfill")
 local Object = LuauPolyfill.Object
-local extends = LuauPolyfill.extends
 type Error = LuauPolyfill.Error
 
 local React = require("@pkg/@jsdotlua/react")
@@ -206,6 +205,14 @@ function ScrollViewer:render()
 			ScrollBarThickness = 0,
 			ElasticBehavior = Enum.ElasticBehavior.WhenScrollable,
 			[React.Change.CanvasPosition] = self._onScroll,
+			[React.Change.AbsoluteCanvasSize] = function()
+				if self.props.onSizeChanged and self._mainFrameRef then
+					self.props.onSizeChanged({
+						height = self._mainFrameRef.AbsoluteSize.Y,
+						width = self._mainFrameRef.AbsoluteSize.X,
+					})
+				end
+			end,
 		}, self.props.style),
 		self.props.children
 	)

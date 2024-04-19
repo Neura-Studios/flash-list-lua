@@ -70,7 +70,7 @@ function RecycleItemPool_private:putRecycledObject(
 	local objectType = self:_stringify(objectType_)
 	local objectSet = self:_getRelevantSet(objectType)
 	if not self._availabilitySet[object] then
-		objectSet[object] = nil
+		objectSet[object] = false :: any
 		self._availabilitySet[object] = objectType
 	end
 end

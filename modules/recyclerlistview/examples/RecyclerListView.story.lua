@@ -38,7 +38,7 @@ local function StoryComponent()
 			return r1 ~= r2
 		end)
 
-		return dataProvider:cloneWithRows(generateArray(300))
+		return dataProvider:cloneWithRows(generateArray(1_000_000))
 	end, {})
 
 	-- Create the layout provider
@@ -80,7 +80,7 @@ local function StoryComponent()
 	return e("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.new(0, width, 1, 0),
+		Size = UDim2.new(0, width, 0.5, 0),
 		BackgroundColor3 = Color3.new(0.6, 0.6, 0.6),
 		BackgroundTransparency = 1,
 	}, {

@@ -215,14 +215,14 @@ function VirtualRenderer_private.new(
 
 		local count = #notNow
 		local resolvedKey
-		local disengagedIndex = 0
+		local disengagedIndex = 1
 
 		if self._isRecyclingEnabled then
 			for i = 1, count do
 				disengagedIndex = notNow[i]
 				self._engagedIndexes[disengagedIndex] = nil
 
-				if self._params and disengagedIndex - 1 < self._params.itemCount then
+				if self._params and disengagedIndex <= self._params.itemCount then
 					-- All the items which are now not visible can go to the
 					-- recycle pool, the pool only needs to maintain keys since
 					-- react can link a view to a key automatically

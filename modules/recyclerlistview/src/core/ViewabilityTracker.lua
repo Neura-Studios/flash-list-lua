@@ -327,8 +327,6 @@ function ViewabilityTracker_private:findFirstLogicallyVisibleIndex(): number
 		i -= 1
 	end
 
-	print("findFirstLogicallyVisibleIndex", result)
-
 	return result
 end
 
@@ -346,7 +344,7 @@ function ViewabilityTracker_private:setActualOffset(actualOffset: number): ()
 end
 
 function ViewabilityTracker_private:_findFirstVisibleIndexOptimally(): number
-	local firstVisibleIndex = 0
+	local firstVisibleIndex = 1
 	if self._currentOffset > 5000 then
 		firstVisibleIndex = self:_findFirstVisibleIndexUsingBS()
 	elseif self._currentOffset > 0 then
@@ -374,14 +372,14 @@ function ViewabilityTracker_private:_doInitialFit(
 end
 
 function ViewabilityTracker_private:_findFirstVisibleIndexLinearly(): number
-	local relevantDim = { start = 0, ["end"] = 0 }
+	local relevantDim = { start = 1, ["end"] = 1 }
 	for i, itemRect in self._layouts do
 		self:_setRelevantBounds(itemRect, relevantDim)
 		if self:_itemIntersectsVisibleWindow(relevantDim.start, relevantDim["end"]) then
 			return i
 		end
 	end
-	return 0
+	return 1
 end
 
 function ViewabilityTracker_private:_findFirstVisibleIndexUsingBS(bias_: number?): number
@@ -403,7 +401,7 @@ function ViewabilityTracker_private:_fitIndexes(
 	local count = #self._layouts
 	local relevantDim: Range = { start = 0, ["end"] = 0 }
 	local atLeastOneLocated = false
-	if startIndex - 1 < count then
+	if startIndex < count then
 		if not isReverse then
 			for i = startIndex, count do
 				if
