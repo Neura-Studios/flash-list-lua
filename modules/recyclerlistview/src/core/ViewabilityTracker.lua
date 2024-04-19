@@ -327,6 +327,8 @@ function ViewabilityTracker_private:findFirstLogicallyVisibleIndex(): number
 		i -= 1
 	end
 
+	print("findFirstLogicallyVisibleIndex", result)
+
 	return result
 end
 
