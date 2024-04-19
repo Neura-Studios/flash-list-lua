@@ -4,7 +4,7 @@ local ResizeDebugHandler = require("./resize/ResizeDebugHandler")
 type ResizeDebugHandler = ResizeDebugHandler.ResizeDebugHandler
 
 export type DebugHandlers = {
-    resizeDebugHandler: ResizeDebugHandler?,
+	resizeDebugHandler: ResizeDebugHandler?,
 }
 
 return nil

@@ -7,9 +7,13 @@ local extends = LuauPolyfill.extends
 
 export type Exception = { type: string, message: string }
 
-local CustomError = extends(Error, "CustomError", function(this: Error, exception: Exception)
-	this.name = exception.type
-	this.message = exception.message
-end)
+local CustomError = extends(
+	Error,
+	"CustomError",
+	function(this: Error, exception: Exception)
+		this.name = exception.type
+		this.message = exception.message
+	end
+)
 
 return CustomError

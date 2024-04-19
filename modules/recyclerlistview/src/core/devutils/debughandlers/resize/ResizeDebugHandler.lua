@@ -4,7 +4,7 @@ local LayoutProvider = require("../../../dependencies/LayoutProvider")
 type Dimension = LayoutProvider.Dimension
 
 export type ResizeDebugHandler = {
-  resizeDebug: (oldDim: Dimension, newDim: Dimension, index: number) -> (),
+	resizeDebug: (oldDim: Dimension, newDim: Dimension, index: number) -> (),
 }
 
 return nil

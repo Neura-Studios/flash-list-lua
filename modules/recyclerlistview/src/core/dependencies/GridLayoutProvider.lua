@@ -62,8 +62,9 @@ type GridLayoutProvider_statics = {
 local GridLayoutProvider = (
 	setmetatable({}, { __index = LayoutProvider }) :: any
 ) :: GridLayoutProvider & GridLayoutProvider_statics
-local GridLayoutProvider_private =
-	(GridLayoutProvider :: any) :: GridLayoutProvider_private & GridLayoutProvider_statics;
+local GridLayoutProvider_private = (
+	GridLayoutProvider :: any
+) :: GridLayoutProvider_private & GridLayoutProvider_statics;
 (GridLayoutProvider :: any).__index = GridLayoutProvider
 
 function GridLayoutProvider_private.new(

@@ -218,7 +218,7 @@ function StickyObject:init(props)
 	self.stickyType = StickyType.HEADER
 	self.stickyTypeMultiplier = 1
 	self.stickyVisibility = false
-	self.containerPosition = { }
+	self.containerPosition = {}
 	self.currentIndex = 0
 	self.currentStickyIndex = 0
 	self.visibleIndices = {}

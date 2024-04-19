@@ -48,7 +48,7 @@ export type BaseDataProvider = {
 	_requiresDataChangeHandling: boolean,
 }
 
-local BaseDataProvider = {} :: BaseDataProvider
+local BaseDataProvider = {} :: BaseDataProvider;
 (BaseDataProvider :: any).__index = BaseDataProvider
 
 function BaseDataProvider.new(

@@ -4,7 +4,7 @@ local React = require("@pkg/@jsdotlua/react")
 local LayoutProvider = require("../dependencies/LayoutProvider")
 type Dimension = LayoutProvider.Dimension
 
-type Map<K, V> = {[K]: V}
+type Map<K, V> = { [K]: V }
 
 export type ScrollViewDefaultProps = {
 	onScroll: (event: ScrollEvent) -> (),
@@ -34,7 +34,9 @@ local BaseScrollView =
 	React.Component:extend("BaseScrollView") :: BaseScrollView & BaseScrollView_statics
 
 function BaseScrollView.init(self: BaseScrollView, props: ScrollViewDefaultProps) end
-function BaseScrollView:scrollTo(scrollInput: { x: number, y: number, animated: boolean }): ()
+function BaseScrollView:scrollTo(
+	scrollInput: { x: number, y: number, animated: boolean }
+): ()
 	error("not implemented abstract method")
 end
 

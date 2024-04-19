@@ -111,12 +111,12 @@ export type ScrollComponent = BaseScrollComponent & {
 local ScrollComponent = React.Component:extend("ScrollComponent") :: ScrollComponent
 
 ScrollComponent.defaultProps = {
-    contentHeight = 0,
-    contentWidth = 0,
-    externalScrollView = ScrollViewer,
-    isHorizontal = false,
-    scrollThrottle = 16,
-    canChangeSize = false,
+	contentHeight = 0,
+	contentWidth = 0,
+	externalScrollView = ScrollViewer,
+	isHorizontal = false,
+	scrollThrottle = 16,
+	canChangeSize = false,
 } :: any
 
 function ScrollComponent:init(props: Props)

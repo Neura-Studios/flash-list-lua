@@ -57,8 +57,9 @@ type GridLayoutManager_statics = {
 local GridLayoutManager = (
 	setmetatable({}, { __index = WrapGridLayoutManager }) :: any
 ) :: GridLayoutManager & GridLayoutManager_statics
-local GridLayoutManager_private =
-	(GridLayoutManager :: any) :: GridLayoutManager_private & GridLayoutManager_statics;
+local GridLayoutManager_private = (
+	GridLayoutManager :: any
+) :: GridLayoutManager_private & GridLayoutManager_statics;
 (GridLayoutManager :: any).__index = GridLayoutManager
 
 function GridLayoutManager_private.new(

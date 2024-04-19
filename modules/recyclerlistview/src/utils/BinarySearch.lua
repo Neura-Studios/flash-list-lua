@@ -87,7 +87,8 @@ function BinarySearch.findValueSmallerThanTarget(
 	elseif target < values[low] then
 		return nil
 	end
-	local midValueAndIndex: ValueAndIndex = BinarySearch.findClosestValueToTarget(values, target)
+	local midValueAndIndex: ValueAndIndex =
+		BinarySearch.findClosestValueToTarget(values, target)
 	local midValue: number = midValueAndIndex.value
 	local mid: number = midValueAndIndex.index
 	if midValue <= target then
@@ -108,7 +109,8 @@ function BinarySearch.findValueLargerThanTarget(
 	elseif target > values[high] then
 		return nil
 	end
-	local midValueAndIndex: ValueAndIndex = BinarySearch.findClosestValueToTarget(values, target)
+	local midValueAndIndex: ValueAndIndex =
+		BinarySearch.findClosestValueToTarget(values, target)
 	local midValue: number = midValueAndIndex.value
 	local mid: number = midValueAndIndex.index
 	if midValue >= target then
