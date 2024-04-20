@@ -7,7 +7,6 @@ local RecyclerListView = require("../src/init")
 
 local e = React.createElement
 local useMemo = React.useMemo
-
 local ViewTypes = {
 	FULL = 0,
 	HALF_LEFT = 1,
@@ -25,7 +24,25 @@ end
 local containerCount = 0
 
 local function CellContainer(props)
-	return e("Frame", props)
+	local data = props.data
+
+	local cellId = useMemo(function()
+		containerCount += 1
+		return containerCount
+	end, {})
+
+	return e("TextLabel", {
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = Color3.new(0.9, 0.9, 0.9),
+		BorderSizePixel = 0,
+		Text = `Data: {data}\nCell ID: {cellId}`
+	}, {
+		Border = e("UIStroke", {
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			Thickness = 1,
+			Color = Color3.new(0, 0, 0),
+		})
+	})
 end
 
 local function StoryComponent()
@@ -38,7 +55,7 @@ local function StoryComponent()
 			return r1 ~= r2
 		end)
 
-		return dataProvider:cloneWithRows(generateArray(1_000_000))
+		return dataProvider:cloneWithRows(generateArray(1000))
 	end, {})
 
 	-- Create the layout provider
@@ -66,13 +83,13 @@ local function StoryComponent()
 		end, function(type, dim)
 			if type == ViewTypes.FULL then
 				dim.width = width
-				dim.height = 160
+				dim.height = 140
 			elseif type == ViewTypes.HALF_LEFT then
 				dim.width = width / 2 - 0.0001
 				dim.height = 160
 			else
 				dim.width = width / 2
-				dim.height = 140
+				dim.height = 160
 			end
 		end)
 	end, {})
@@ -87,8 +104,16 @@ local function StoryComponent()
 		List = e(RecyclerListView.RecyclerListView, {
 			layoutProvider = layoutProvider,
 			dataProvider = dataProvider,
-			rowRenderer = function(...)
-				return e(React.Fragment)
+			scrollViewProps = {
+				style = {
+					ScrollBarThickness = 12,
+				}
+			},
+			rowRenderer = function(type, data)
+				return e(CellContainer, {
+					type = type,
+					data = data,
+				})
 			end,
 		}),
 	})

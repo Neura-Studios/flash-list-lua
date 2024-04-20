@@ -156,11 +156,13 @@ function ViewRenderer:render()
 			Position = UDim2.fromOffset(self.props.x, self.props.y),
 			-- TODO: Is this correct?
 			AutomaticSize = Enum.AutomaticSize.XY,
+			BackgroundTransparency = 1,
 		}
 		else {
 			Position = UDim2.fromOffset(self.props.x, self.props.y),
 			Size = UDim2.fromOffset(self.props.width, self.props.height),
 			ClipsDescendants = true,
+			BackgroundTransparency = 1,
 		}
 
 	local props = Object.assign(
@@ -288,7 +290,7 @@ function ViewRenderer:componentWillUnmount(): ()
 end
 
 function ViewRenderer:renderChild(): React.Node
-	return self.props:childRenderer(
+	return self.props.childRenderer(
 		self.props.layoutType,
 		self.props.data,
 		self.props.index,
