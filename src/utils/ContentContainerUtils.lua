@@ -3,9 +3,11 @@
 local LuauPolyfill = require("@pkg/@jsdotlua/luau-polyfill")
 local Boolean = LuauPolyfill.Boolean
 
+local RecyclerListView = require("../recyclerlistview")
+type Dimension = RecyclerListView.Dimension
+
 -- TODO: Import types from their correct places
 type ContentStyle = any
-type Dimension = any
 type OptionalContentStyle = any
 type ViewStyle = any
 

@@ -1,16 +1,22 @@
 -- ROBLOX upstream: https://github.com/shopify/flash-list/blob/da86222b74afc387c439b9f812d8184fa5e07732/FlashListProps.ts
 
-local React = require("@pkg/@jsdotlua/react")
-local ViewToken = require("./viewability/ViewToken")
+local LuauPolyfill = require("@pkg/@jsdotlua/luau-polyfill")
+type Array<T> = LuauPolyfill.Array<T>
 
+local React = require("@pkg/@jsdotlua/react")
 type ComponentType<T> = React.ComponentType<T>
-type ExtraData<T> = { value: T? }
 type PureComponent<P, S> = React.PureComponent<P, S>
 type ReactElement = React.ReactElement
+
+local RecyclerListView = require("./recyclerlistview")
+type DataProvider = RecyclerListView.DataProvider
+
+local ViewToken = require("./viewability/ViewToken")
 type ViewToken = ViewToken.ViewToken
 
+type ExtraData<T> = { value: T? }
+
 type BlankAreaEventHandler = any
-type DataProvider = any
 type GridLayoutProviderWithProps<T> = any
 type Pick<T, V...> = any
 type Record<K, V> = { [K]: V }
@@ -72,7 +78,7 @@ export type FlashListProps<TItem> = ScrollViewProps & {
 	renderItem: ListRenderItem<TItem>?,
 
 	-- For simplicity, data is a plain array of items of a given type.
-	data: { TItem }?,
+	data: Array<TItem>?,
 
 	-- Average or median size for elements in the list. Doesn't have to be very accurate but a good estimate can
 	-- improve performance. A quick look at `Element Inspector` can help you determine this. If you're confused
@@ -253,7 +259,7 @@ export type FlashListProps<TItem> = ScrollViewProps & {
 }
 
 export type FlashListState<TItem> = {
-	data: { TItem }?,
+	data: Array<TItem>?,
 	dataProvider: DataProvider,
 	extraData: ExtraData<unknown>?,
 	layoutProvider: GridLayoutProviderWithProps<TItem>,
