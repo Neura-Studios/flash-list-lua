@@ -7,13 +7,13 @@ local LuauPolyfill = require("@pkg/@jsdotlua/luau-polyfill")
 local Array = LuauPolyfill.Array
 local Boolean = LuauPolyfill.Boolean
 local Set = LuauPolyfill.Set
-
 type Array<T> = LuauPolyfill.Array<T>
 type Set<T> = LuauPolyfill.Set<T>
 
--- TODO: Import types from their correct places
-type Dimension = any
-type Layout = any
+local RecyclerListView = require("../recyclerlistview")
+type Dimension = RecyclerListView.Dimension
+type Layout = RecyclerListView.Layout
+
 type ViewabilityConfig = any
 
 --[[

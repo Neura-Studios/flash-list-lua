@@ -3,17 +3,18 @@
 local LuauPolyfill = require("@pkg/@jsdotlua/luau-polyfill")
 local Array = LuauPolyfill.Array
 local Boolean = LuauPolyfill.Boolean
+type Array<T> = LuauPolyfill.Array<T>
 
 local FlashListProps = require("../FlashListProps")
-local ViewabilityHelper = require("./ViewabilityHelper")
-local ViewToken = require("./ViewToken")
+type FlashList<T> = FlashListProps.FlashListComponent
 
-type Array<T> = LuauPolyfill.Array<T>
+local ViewabilityHelper = require("./ViewabilityHelper")
 type ViewabilityHelper = ViewabilityHelper.ViewabilityHelper
+
+local ViewToken = require("./ViewToken")
 type ViewToken = ViewToken.ViewToken
 
 -- TODO: Import types from their correct places
-type FlashList<T> = FlashListProps.FlashListComponent
 type ViewabilityConfig = any
 
 --[[

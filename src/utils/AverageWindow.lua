@@ -1,7 +1,6 @@
 -- ROBLOX upstream: https://github.com/shopify/flash-list/blob/da86222b74afc387c439b9f812d8184fa5e07732/utils/AverageWindow.ts
 
 local LuauPolyfill = require("@pkg/@jsdotlua/luau-polyfill")
-
 type Array<T> = LuauPolyfill.Array<T>
 
 --[[
