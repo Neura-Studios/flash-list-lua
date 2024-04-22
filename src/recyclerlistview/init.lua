@@ -46,10 +46,10 @@ return table.freeze({
 	LayoutManager = LayoutManager.LayoutManager,
 	WrapGridLayoutManager = LayoutManager.WrapGridLayoutManager,
 	GridLayoutManager = GridLayoutManager,
-	RecyclerListView = (RecyclerListView :: any) ::  React.FC<RecyclerListViewProps>,
+	RecyclerListView = (RecyclerListView :: any) :: React.FC<RecyclerListViewProps>,
 	-- TODO Luau: We don't use `ProgressiveListViewProps` as the prop type because of a Luau type checker error with
 	--  intersection types.
-	ProgressiveListView = (ProgressiveListView :: any) ::  React.FC<RecyclerListViewProps>,
+	ProgressiveListView = (ProgressiveListView :: any) :: React.FC<RecyclerListViewProps>,
 	BaseItemAnimator = BaseItemAnimator,
 	BaseScrollView = BaseScrollView,
 	AutoScroll = AutoScroll,

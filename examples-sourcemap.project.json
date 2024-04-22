@@ -2,23 +2,16 @@
   "name": "FlashList Example Place (Sourcemap)",
   "tree": {
     "$className": "DataModel",
-
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
       "Packages": {
-        "$path": "node_modules"
-      },
-      "Modules": {
-        "$className": "Folder",
-        "recyclerlistview": {
-          "$path": "modules/recyclerlistview/src"
+        "$path": "node_modules",
+        "FlashList": {
+          "$path": "src"
         }
       },
       "Examples": {
-        "$className": "Folder",
-        "RecyclerListView": {
-          "$path": "modules/recyclerlistview/examples"
-        }
+        "$path": "examples"
       }
     }
   }

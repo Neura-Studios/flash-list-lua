@@ -1,18 +1,20 @@
 {
-  "name": "workspace",
-  "private": true,
-  "workspaces": [
-    "modules/*"
-  ],
+  "name": "@neura-studios/flash-list",
   "scripts": {
     "prepare": "npmluau",
     "build-assets": "sh ./scripts/build-assets.sh",
-    "lint": "selene modules",
-    "format": "stylua modules",
-    "style-check": "stylua modules --check",
+    "lint": "selene src",
+    "format": "stylua src",
+    "style-check": "stylua src --check",
     "clean": "rm -rf roblox build node_modules"
   },
+  "dependencies": {
+    "@jsdotlua/luau-polyfill": "^1.2.6",
+    "@jsdotlua/promise": "^3.5.0",
+    "@jsdotlua/react": "^17.1.0"
+  },
   "devDependencies": {
+    "@jsdotlua/react-roblox": "^17.1.0",
     "commander": "^11.1.0",
     "npmluau": "^0.1.1"
   }

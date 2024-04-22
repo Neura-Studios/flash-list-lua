@@ -466,14 +466,10 @@ function FlashList_private.init(self: FlashList_private, props: FlashListProps<T
 		return React.createElement(
 			React.Fragment,
 			nil,
-			React.createElement(
-				FooterContainer,
-				{
-					index = -1,
-					style = { self.props.ListFooterComponentStyle, self:getTransform() },
-				},
-				self:getValidComponent(self.props.ListFooterComponent)
-			),
+			React.createElement(FooterContainer, {
+				index = -1,
+				style = { self.props.ListFooterComponentStyle, self:getTransform() },
+			}, self:getValidComponent(self.props.ListFooterComponent)),
 			React.createElement(View, {
 				style = {
 					paddingBottom = self.contentStyle.paddingBottom,
@@ -1105,7 +1101,8 @@ function FlashList_private:scrollToOffset(
 		ref(x, y, Boolean(params.animated))
 	end
 end
-function FlashList_private:getScrollableNode(): number | nil --[[ ROBLOX CHECK: verify if `null` wasn't used differently than `undefined` ]]
+function FlashList_private:getScrollableNode(
+): number | nil --[[ ROBLOX CHECK: verify if `null` wasn't used differently than `undefined` ]]
 	local ref = if typeof(self.rlvRef) == "table"
 		then self.rlvRef.getScrollableNode
 		else nil

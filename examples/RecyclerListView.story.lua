@@ -3,7 +3,7 @@
 local React = require("@pkg/@jsdotlua/react")
 local ReactRoblox = require("@pkg/@jsdotlua/react-roblox")
 
-local RecyclerListView = require("../src/init")
+local RecyclerListView = require("../src/recyclerlistview")
 
 local e = React.createElement
 local useMemo = React.useMemo
@@ -104,6 +104,7 @@ local function StoryComponent()
 		BackgroundTransparency = 1,
 	}, {
 		List = e(RecyclerListView.ProgressiveListView, {
+			renderAheadOffset = 250,
 			layoutProvider = layoutProvider,
 			dataProvider = dataProvider,
 			scrollViewProps = {
