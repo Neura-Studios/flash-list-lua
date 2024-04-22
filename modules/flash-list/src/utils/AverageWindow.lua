@@ -9,8 +9,6 @@ type Array<T> = LuauPolyfill.Array<T>
 ]]
 
 export type AverageWindow = {
-	new: (size: number, startValue: number?) -> AverageWindow,
-
 	currentAverage: number,
 	currentCount: number,
 	inputValues: Array<number | nil>,

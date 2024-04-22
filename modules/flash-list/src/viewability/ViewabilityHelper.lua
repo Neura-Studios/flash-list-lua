@@ -22,15 +22,6 @@ type ViewabilityConfig = any
 ]]
 
 export type ViewabilityHelper = {
-	new: (
-		viewabilityConfig: ViewabilityConfig?,
-		viewableIndicesChanged: (
-			indices: Array<number>,
-			newlyVisibleIndices: Array<number>,
-			newlyNonvisibleIndices: Array<number>
-		) -> ()
-	) -> ViewabilityHelper,
-
 	hasInteracted: boolean,
 	lastReportedViewableIndices: Array<number>,
 	possiblyViewableIndices: Array<number>,
