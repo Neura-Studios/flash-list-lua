@@ -12,6 +12,9 @@
       "prepare": "npmluau"
     },
     "dependencies": {
+      "@jsdotlua/luau-polyfill": "^1.2.6",
+      "@jsdotlua/promise": "^3.5.0",
+      "@jsdotlua/react": "^17.1.0"
     },
     "devDependencies": {
       "npmluau": "^0.1.0"
