@@ -271,7 +271,7 @@ function ViewRenderer:shouldComponentUpdate(newProps: ViewRendererProps<any>): b
 	return shouldUpdate
 end
 
-function ViewRenderer:UNSAFE_componentWillMount(): ()
+function ViewRenderer:getSnapshotBeforeUpdate(): ()
 	self.animatorStyleOverrides = self.props.itemAnimator:animateWillMount(
 		self.props.x,
 		self.props.y,

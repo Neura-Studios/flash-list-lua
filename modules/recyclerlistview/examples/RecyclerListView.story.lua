@@ -32,16 +32,18 @@ local function CellContainer(props)
 	end, {})
 
 	return e("TextLabel", {
-		Size = UDim2.fromScale(1, 1),
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.new(1, -2, 1, -2),
 		BackgroundColor3 = Color3.new(0.9, 0.9, 0.9),
 		BorderSizePixel = 0,
-		Text = `Data: {data}\nCell ID: {cellId}`
+		Text = `Data: {data}\nCell ID: {cellId}`,
 	}, {
 		Border = e("UIStroke", {
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 			Thickness = 1,
 			Color = Color3.new(0, 0, 0),
-		})
+		}),
 	})
 end
 
@@ -101,13 +103,13 @@ local function StoryComponent()
 		BackgroundColor3 = Color3.new(0.6, 0.6, 0.6),
 		BackgroundTransparency = 1,
 	}, {
-		List = e(RecyclerListView.RecyclerListView, {
+		List = e(RecyclerListView.ProgressiveListView, {
 			layoutProvider = layoutProvider,
 			dataProvider = dataProvider,
 			scrollViewProps = {
 				style = {
 					ScrollBarThickness = 12,
-				}
+				},
 			},
 			rowRenderer = function(type, data)
 				return e(CellContainer, {

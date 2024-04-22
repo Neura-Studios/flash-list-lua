@@ -19,7 +19,7 @@ export type ProgressiveListViewProps = RecyclerListViewProps & {
 	--[[
 		A smaller final value can help in building up recycler pool in advance. This is only used if there is a valid updated cycle.
 		e.g, if maxRenderAhead is 0 then there will be no cycle and final value will be unused
-   ]]
+	]]
 	finalRenderAheadOffset: number?,
 }
 
@@ -66,11 +66,11 @@ local noop = function() end
 local ProgressiveListView =
 	extends(RecyclerListView, "ProgressiveListView", noop) :: ProgressiveListView_private & ProgressiveListView_statics
 
-ProgressiveListView.defaultProps = Object.assign(
-	{},
-	RecyclerListView.defaultProps,
-	{ maxRenderAhead = math.huge, renderAheadStep = 300, renderAheadOffset = 0 }
-)
+ProgressiveListView.defaultProps = Object.assign({}, RecyclerListView.defaultProps, {
+	maxRenderAhead = math.huge,
+	renderAheadStep = 300,
+	renderAheadOffset = 0,
+})
 
 function ProgressiveListView:init(props)
 	local self = self :: ProgressiveListView_private

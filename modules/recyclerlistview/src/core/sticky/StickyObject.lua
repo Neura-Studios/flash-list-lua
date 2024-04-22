@@ -233,16 +233,16 @@ function StickyObject:init(props)
 	self._windowCorrection = { startCorrection = 0, endCorrection = 0, windowShift = 0 }
 end
 
-function StickyObject:UNSAFE_componentWillReceiveProps(newProps: StickyObjectProps): ()
+function StickyObject:componentDidUpdate(): ()
 	self:_updateDimensionParams()
 	self:calculateVisibleStickyIndex(
-		newProps.stickyIndices,
+		self.props.stickyIndices,
 		self._smallestVisibleIndex,
 		self._largestVisibleIndex,
 		self._offsetY,
 		self._windowBound
 	)
-	self:_computeLayouts(newProps.stickyIndices)
+	self:_computeLayouts(self.props.stickyIndices)
 	self:stickyViewVisible(self.stickyVisibility, false)
 end
 

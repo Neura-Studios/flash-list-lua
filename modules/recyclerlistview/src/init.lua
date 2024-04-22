@@ -1,3 +1,5 @@
+local React = require("@pkg/@jsdotlua/react")
+
 local ContextProvider = require("./core/dependencies/ContextProvider")
 export type ContextProvider = ContextProvider.ContextProvider
 export type ContextValue = ContextProvider.ContextValue
@@ -28,6 +30,7 @@ local GridLayoutManager = require("./core/layoutmanager/GridLayoutManager")
 export type GridLayoutManager = GridLayoutManager.GridLayoutManager
 local ProgressiveListView = require("./core/ProgressiveListView")
 export type ProgressiveListView = ProgressiveListView.ProgressiveListView
+export type ProgressiveListViewProps = ProgressiveListView.ProgressiveListViewProps
 local DebugHandlers = require("./core/devutils/debughandlers/DebugHandlers")
 export type DebugHandlers = DebugHandlers.DebugHandlers
 local ViewabilityTracker = require("./core/ViewabilityTracker")
@@ -43,8 +46,10 @@ return table.freeze({
 	LayoutManager = LayoutManager.LayoutManager,
 	WrapGridLayoutManager = LayoutManager.WrapGridLayoutManager,
 	GridLayoutManager = GridLayoutManager,
-	RecyclerListView = RecyclerListView,
-	ProgressiveListView = ProgressiveListView,
+	RecyclerListView = (RecyclerListView :: any) ::  React.FC<RecyclerListViewProps>,
+	-- TODO Luau: We don't use `ProgressiveListViewProps` as the prop type because of a Luau type checker error with
+	--  intersection types.
+	ProgressiveListView = (ProgressiveListView :: any) ::  React.FC<RecyclerListViewProps>,
 	BaseItemAnimator = BaseItemAnimator,
 	BaseScrollView = BaseScrollView,
 	AutoScroll = AutoScroll,

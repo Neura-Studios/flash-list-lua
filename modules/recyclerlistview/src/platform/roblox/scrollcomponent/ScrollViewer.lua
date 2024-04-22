@@ -205,7 +205,7 @@ function ScrollViewer:render()
 			ScrollBarThickness = 0,
 			ElasticBehavior = Enum.ElasticBehavior.WhenScrollable,
 			[React.Change.CanvasPosition] = self._onScroll,
-			[React.Change.AbsoluteCanvasSize] = function()
+			[React.Change.AbsoluteSize] = function()
 				if self.props.onSizeChanged and self._mainFrameRef then
 					self.props.onSizeChanged({
 						height = self._mainFrameRef.AbsoluteSize.Y,

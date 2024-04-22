@@ -554,27 +554,23 @@ function RecyclerListView:init(props)
 	return (self :: any) :: RecyclerListView
 end
 
-function RecyclerListView:UNSAFE_componentWillReceiveProps(
-	newProps: RecyclerListViewProps
-): ()
-	self:_assertDependencyPresence(newProps)
-	self:_checkAndChangeLayouts(newProps)
-	if not newProps.onVisibleIndicesChanged then
+function RecyclerListView:componentDidUpdate(): ()
+	self:_assertDependencyPresence(self.props)
+	self:_checkAndChangeLayouts(self.props)
+	if not self.props.onVisibleIndicesChanged then
 		self._virtualRenderer:removeVisibleItemsListener()
 	end
-	if newProps.onVisibleIndexesChanged then
+	if self.props.onVisibleIndexesChanged then
 		error(
 			CustomError.new(RecyclerListViewExceptions.usingOldVisibleIndexesChangedParam)
 		)
 	end
-	if newProps.onVisibleIndicesChanged then
+	if self.props.onVisibleIndicesChanged then
 		self._virtualRenderer:attachVisibleItemsListener(
-			newProps.onVisibleIndicesChanged :: any
+			self.props.onVisibleIndicesChanged
 		)
 	end
-end
 
-function RecyclerListView:componentDidUpdate(): ()
 	self:_processInitialOffset()
 	self:_processOnEndReached()
 	self:_checkAndChangeLayouts(self.props)
