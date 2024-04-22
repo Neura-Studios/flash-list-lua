@@ -217,7 +217,7 @@ function BaseViewRenderer:getRef(): Frame | nil
 end
 
 function BaseViewRenderer:renderChild(): React.Node
-	return self.props:childRenderer(
+	return self.props.childRenderer(
 		self.props.layoutType,
 		self.props.data,
 		self.props.index,

@@ -550,8 +550,6 @@ function RecyclerListView:init(props)
 	else
 		self.state = { internalSnapshot = {}, renderStack = {} }
 	end
-
-	return (self :: any) :: RecyclerListView
 end
 
 function RecyclerListView:componentDidUpdate(): ()

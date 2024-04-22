@@ -104,7 +104,6 @@ local function StoryComponent()
 		BackgroundTransparency = 1,
 	}, {
 		List = e(RecyclerListView.ProgressiveListView, {
-			renderAheadOffset = 250,
 			layoutProvider = layoutProvider,
 			dataProvider = dataProvider,
 			scrollViewProps = {

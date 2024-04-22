@@ -18,6 +18,7 @@ export type WindowCorrectionConfig = RecyclerListView.WindowCorrectionConfig
 local BaseScrollView = require("./core/scrollcomponent/BaseScrollView")
 export type BaseScrollView = BaseScrollView.BaseScrollView
 local BaseItemAnimator = require("./core/ItemAnimator")
+export type BaseItemAnimator = BaseItemAnimator.BaseItemAnimator
 export type ItemAnimator = BaseItemAnimator.ItemAnimator
 local AutoScroll = require("./utils/AutoScroll")
 export type ScrollableView = AutoScroll.Scrollable

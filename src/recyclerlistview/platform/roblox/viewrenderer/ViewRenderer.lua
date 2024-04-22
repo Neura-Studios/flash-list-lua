@@ -215,7 +215,7 @@ function ViewRenderer:_checkSizeChange(fromObserver_: boolean?): ()
 				self._isPendingSizeUpdate = true
 				self.props.onSizeChanged(self._dim, self.props.index)
 			elseif fromObserver and self._isPendingSizeUpdate then
-				self.props:onSizeChanged(self._dim, self.props.index)
+				self.props.onSizeChanged(self._dim, self.props.index)
 			end
 		end
 	end
