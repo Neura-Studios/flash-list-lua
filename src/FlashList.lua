@@ -3,13 +3,18 @@
 local FlashListProps = require("./FlashListProps")
 
 local LuauPolyfill = require("@pkg/@jsdotlua/luau-polyfill")
-local Object = LuauPolyfill.Object
+local Array = LuauPolyfill.Array
 local clearTimeout = LuauPolyfill.clearTimeout
 local console = LuauPolyfill.console
+local Object = LuauPolyfill.Object
 local setTimeout = LuauPolyfill.setTimeout
 local toJSBoolean = LuauPolyfill.Boolean.toJSBoolean
 
 local React = require("@pkg/@jsdotlua/react")
+
+local RecyclerListView = require("./recyclerlistview")
+local DataProvider = RecyclerListView.DataProvider
+
 local ViewabilityManager = require("./viewability/ViewabilityManager")
 local Warnings = require("./errors/Warnings")
 
@@ -30,9 +35,7 @@ type RenderTarget = FlashListProps.RenderTarget
 
 local FlashList: FlashListComponent = React.PureComponent:extend("FlashList")
 
-function FlashList.init(self: FlashListComponent)
-	local props = self.props
-
+function FlashList:init(props)
 	-- self.rlvRef: RecyclerListView<RecyclerListViewProps, any>? = nil
 	-- self.stickyContentContainerRef: PureComponentWrapper? = nil
 	self.listFixedDimensionSize = 0
@@ -63,11 +66,7 @@ function FlashList.init(self: FlashListComponent)
 	-- self.itemSizeWarningTimeoutId: Timeout? = nil
 	-- self.renderedSizeWarningTimeoutId: Timeout? = nil
 
-	self.isEmptyList = false
-	-- self.viewabilityManager: ViewabilityManager<T>? = nil
-	-- self.itemAnimator: BaseItemAnimator? = nil
-
-	if toJSBoolean(props.estimatedListSize) then
+	if props.estimatedListSize ~= nil then
 		if toJSBoolean(props.horizontal) then
 			self.listFixedDimensionSize = props.estimatedListSize.height
 		else
@@ -80,9 +79,339 @@ function FlashList.init(self: FlashListComponent)
 		self.distanceFromWindow = (props.ListHeaderComponent and 1) or 0
 	end
 
+	self.isEmptyList = false
 	self.state = FlashList.getInitialMutableState(self)
 	self.viewabilityManager = ViewabilityManager.new(self)
 	-- self.itemAnimator = getItemAnimator()
+
+	self.onEndReached = function()
+		if self.props.onEndReached ~= nil then
+			self.props.onEndReached()
+		end
+	end
+
+	self.getRefreshControl = function()
+		if self.props.onRefresh ~= nil then
+			-- return (
+			-- 	<RefreshControl
+			-- 		refreshing={self.props.refreshing}
+			-- 		progressViewOffset={self.props.progressViewOffset}
+			-- 		onRefresh={self.props.onRefresh}
+			-- 	/>
+			-- )
+
+			return nil
+		end
+
+		return nil
+	end
+
+	self.onScrollBeginDrag = function(event: NativeSyntheticEvent<NativeScrollEvent>)
+		self.recordInteraction()
+
+		if self.props.onScrollBeginDrag ~= nil then
+			self.props.onScrollBeginDrag(event)
+		end
+	end
+
+	self.onScroll = function(event: NativeSyntheticEvent<NativeScrollEvent>)
+		self.recordInteraction()
+		self.viewabilityManager:updateViewableItems()
+
+		if self.props.onScroll ~= nil then
+			self.props.onScroll(event)
+		end
+	end
+
+	self.getUpdatedWindowCorrectionConfig = function()
+		if toJSBoolean(self.isInitialScrollIndexInFirstRow()) then
+			self.windowCorrectionConfig.applyToIniitalOffset = false
+		else
+			self.windowCorrectionConfig.applyToIniitalOffset = true
+		end
+
+		self.windowCorrectionConfig.value.windowShift = -self.distanceFromWindow
+
+		return self.windowCorrectionConfig
+	end
+
+	self.isInitialScrollIndexInFirstRow = function()
+		return (
+			if self.props.initialScrollIndex ~= nil
+				then self.props.initialScrollIndex
+				else self.state.numColumns
+		) < self.state.numColumns
+	end
+
+	self.validateListSize = function(event: LayoutChangeEvent)
+		local height = event.nativeEvent.layout.height
+		local width = event.nativeEvent.layout.width
+
+		self.clearRenderSizeWarningTimeout()
+
+		if math.floor(height) < 1 or math.floor(width) < 1 then
+			self.renderedSizeWarningTimeoutId = setTimeout(function()
+				console.warn(Warnings.unusableRenderedSize)
+			end, 1000)
+		end
+	end
+
+	self.handleSizeChange = function(event: LayoutChangeEvent)
+		self.validateListSize(event)
+
+		local oldSize = self.listFixedDimensionSize
+		local newSize = if toJSBoolean(self.props.horizontal)
+			then event.nativeEvent.layout.height
+			else event.nativeEvent.layout.width
+
+		-- >0 check is to avoid rerender on mount where it would be redundant
+		self.listFixedDimensionSize = newSize
+
+		if oldSize > 0 and oldSize ~= newSize then
+			local ref = if typeof(self.rlvRef) == "table"
+				then self.rlvRef.forceRerender
+				else nil
+			if ref ~= nil then
+				ref()
+			end
+		end
+
+		if self.props.onLayout ~= nil then
+			self.props.onLayout(event)
+		end
+	end
+
+	self.updateDistanceFromWindow = function(event: LayoutChangeEvent)
+		local newDistanceFromWindow = if toJSBoolean(self.props.horizontal)
+			then event.nativeEvent.layout.x
+			else event.nativeEvent.layout.y
+
+		if self.distanceFromWindow ~= newDistanceFromWindow then
+			self.distanceFromWindow = newDistanceFromWindow
+			self.windowCorrectionConfig.value.windowShift = -self.distanceFromWindow
+			self.viewabilityManager:updateViewableItems()
+		end
+	end
+
+	self.getTransform = function()
+		local transformStyle = if toJSBoolean(self.props.horizontal)
+			then self.transformStyleHorizontal
+			else self.transformStyle
+
+		return toJSBoolean(self.props.inverted) and transformStyle or nil
+	end
+
+	self.applyWindowCorrection = function(_, _, correctionObject: { windowShift: number })
+		correctionObject.windowShift = -self.distanceFromWindow
+
+		if typeof(self.stickyContainerRef) == "table" then
+			self.stickyContentContainerRef:setEnabled(self.isStickyEnabled)
+		end
+	end
+
+	self.rowRendererSticky = function(index: number)
+		return self.rowRendererWithIndex(
+			index,
+			FlashListProps.RenderTargetOptions.StickyHeader
+		)
+	end
+
+	self.rowRendererWithIndex = function(index: number, target: RenderTarget)
+		if self.props.renderItem ~= nil then
+			return self.props.renderItem({
+				extraData = if typeof(self.props.extraData) == "table"
+					then self.props.extraData.value
+					else nil,
+				index = index,
+				item = (self.props.data :: any)[index],
+				target = target,
+			})
+		end
+	end
+
+	-- This will prevent render item calls unless data changes.
+	-- Output of this method is received as children object so returning null here is no issue as long as we handle it inside our child container.
+	-- @module getCellContainerChild acts as the new rowRenderer and is called directly from our child container.
+	self.emptyRowRenderer = function()
+		return nil
+	end
+
+	self.recyclerRef = function(ref: any)
+		self.rlvRef = ref
+	end
+
+	self.stickyContentRef = function(ref: any)
+		self.stickyContentContainerRef = ref
+	end
+
+	self.isStickyEnabled = function()
+		local currentOffset = if typeof(self.rlvRef) == "table"
+			then self.rlvRef.getCurrentScrollOffset()
+			else 0
+
+		return currentOffset >= self.distanceFromWindow
+	end
+
+	self.onItemLayout = function(index: number)
+		self.state.layoutProvider:reportItemLayout(index)
+		self.raiseOnLoadEventIfNeeded()
+	end
+
+	self.raiseOnLoadEventIfNeeded = function()
+		if not toJSBoolean(self.isListLoaded) then
+			self.isListLoaded = true
+
+			if self.props.onLoad ~= nil then
+				self.props.onLoad({
+					elapsedTimeInMs = os.clock() - self.loadStartTime,
+				})
+			end
+
+			self.runAfterOnLoad()
+		end
+	end
+
+	self.runAfterOnLoad = function()
+		if self.props.estimatedItemSize == nil then
+			self.itemSizeWarningTimeoutId = setTimeout(function()
+				local averageItemSize =
+					math.floor(self.state.layoutProvider.averageItemSize)
+
+				console.warn(
+					string.gsub(
+						Warnings.estimatedItemSizeMissingWarning,
+						"@size",
+						tostring(averageItemSize)
+					)
+				)
+			end, 1000)
+		end
+
+		self.postLoadTimeoutId = setTimeout(function()
+			-- This force update is required to remove dummy element rendered to measure horizontal list height when  the list doesn't update on its own.
+			-- In most cases this timeout will never be triggered because list usually updates atleast once and this timeout is cleared on update.
+			if toJSBoolean(self.props.horizontal) then
+				self:forceUpdate()
+			end
+		end, 500)
+	end
+
+	self.clearPostLoadTimeout = function()
+		if self.postLoadTimeoutId ~= nil then
+			clearTimeout(self.postLoadTimeoutId)
+			self.postLoadTimeoutId = nil
+		end
+	end
+
+	self.clearRenderSizeWarningTimeout = function()
+		if self.renderSizeWarningTimeoutId ~= nil then
+			clearTimeout(self.renderSizeWarningTimeoutId)
+			self.renderSizeWarningTimeoutId = nil
+		end
+	end
+
+	-- Disables recycling for the next frame so that layout animations run well.
+	-- Warning: Avoid this when making large changes to the data as the list might draw too much to run animations. Single item insertions/deletions
+	-- should be good. With recycling paused the list cannot do much optimization.
+	-- The next render will run as normal and reuse items.
+	self.prepareForLayoutAnimationRender = function()
+		if self.props.keyExtractor == nil then
+			console.warn(Warnings.missingKeyExtractor)
+		else
+			if typeof(self.rlvRef) == "table" then
+				self.rlvRef.prepareForLayoutAnimationRender()
+			end
+		end
+	end
+
+	self.scrollToEnd = function(params: { animated: boolean? }?)
+		if typeof(self.rlvRef) == "table" then
+			local animated = false
+			if typeof(params) == "table" and params.animated ~= nil then
+				animated = params.animated
+			end
+
+			self.rlvRef.scrollToEnd(animated)
+		end
+	end
+
+	self.scrollToIndex = function(params: {
+		animated: boolean?,
+		index: number,
+		viewOffset: number?,
+		viewPosition: number?,
+	})
+		local layout = nil
+		local listSize = nil
+
+		if typeof(self.rlvRef) == "table" then
+			layout = self.rlvRef.getLayout(params.index)
+			listSize = self.rlvRef.getRenderedSize()
+		end
+
+		if layout ~= nil and listSize ~= nil then
+			local horizontal = toJSBoolean(self.props.horizontal)
+			local itemOffset = horizontal and layout.x or layout.y
+			local fixedDimension = horizontal and listSize.width or listSize.height
+			local itemSize = horizontal and layout.width or layout.height
+
+			local viewPosition = toJSBoolean(params.viewPosition) and params.viewPosition
+				or 0
+			local scrollOffset =
+				math.max(0, itemOffset - viewPosition * (fixedDimension - itemSize))
+
+			if self.rlvRef ~= nil then
+				self.rlvRef.scrollToOffset(
+					scrollOffset,
+					scrollOffset,
+					params.animated,
+					true
+				)
+			end
+		end
+	end
+
+	self.scrollToItem = function(params: {
+		animated: boolean?,
+		item: any,
+		viewOffset: number?,
+		viewPosition: number?,
+	})
+		local index = Array.indexOf(self.props.data or {}, params.item)
+		index = toJSBoolean(index) and index or -1
+
+		if index >= 0 then
+			self.scrollToIndex(Object.assign({}, params, { index = index }))
+		end
+	end
+
+	self.scrollToOffset = function(params: {
+		animated: boolean?,
+		offset: number,
+	})
+		local x = toJSBoolean(self.props.horizontal) and params.offset or 0
+		local y = toJSBoolean(self.props.horizontal) and 0 or params.offset
+
+		if self.rlvRef ~= nil then
+			self.rlvRef.scrollToOffset(x, y, params.animated)
+		end
+	end
+
+	self.getScrollableNode = function()
+		if self.rlvRef ~= nil then
+			return self.rlvRef.getScrollableNode()
+		end
+
+		return nil
+	end
+
+	self.clearLayoutCacheOnUpdate = function()
+		self.state.layoutProvider:markExpired()
+	end
+
+	self.recordInteraction = function()
+		self.viewabilityManager:recordInteraction()
+	end
 end
 
 -- private validateProps() {
@@ -116,36 +445,16 @@ end
 -- 	}
 -- }
 
-function FlashList.onEndReached(self: FlashListComponent)
-	if self.props.onEndReached ~= nil then
-		self.props.onEndReached()
-	end
-end
-
-function FlashList.getRefreshControl(self: FlashListComponent)
-	if self.props.onRefresh ~= nil then
-		-- return (
-		-- 	<RefreshControl
-		-- 		refreshing={self.props.refreshing}
-		-- 		progressViewOffset={self.props.progressViewOffset}
-		-- 		onRefresh={self.props.onRefresh}
-		-- 	/>
-		-- )
-
-		return nil
-	end
-end
-
-function FlashList.componentDidMount(self: FlashListComponent)
+function FlashList:componentDidMount()
 	if self.props.data ~= nil and #self.props.data > 0 then
-		self:raiseOnLoadEventIfNeeded()
+		self.raiseOnLoadEventIfNeeded()
 	end
 end
 
-function FlashList.componentWillUnmount(self: FlashListComponent)
+function FlashList:componentWillUnmount()
 	self.viewabilityManager:dispose()
-	self:clearPostLoadTimeout()
-	self:clearRenderSizeWarningTimeout()
+	self.clearPostLoadTimeout()
+	self.clearRenderSizeWarningTimeout()
 
 	if self.itemSizeWarningTimeoutId ~= nil then
 		clearTimeout(self.itemSizeWarningTimeoutId)
@@ -251,87 +560,6 @@ end
 --   );
 -- }
 
-function FlashList.onScrollBeginDrag(
-	self: FlashListComponent,
-	event: NativeSyntheticEvent<NativeScrollEvent>
-)
-	self:recordInteraction()
-
-	if self.props.onScrollBeginDrag ~= nil then
-		self.props.onScrollBeginDrag(event)
-	end
-end
-
-function FlashList.onScroll(
-	self: FlashListComponent,
-	event: NativeSyntheticEvent<NativeScrollEvent>
-)
-	self:recordInteraction()
-	self.viewabilityManager:updateViewableItems()
-
-	if self.props.onScroll ~= nil then
-		self.props.onScroll(event)
-	end
-end
-
-function FlashList.getUpdatedWindowCorrectionConfig(self: FlashListComponent)
-	if toJSBoolean(self:isInitialScrollIndexInFirstRow()) then
-		self.windowCorrectionConfig.applyToIniitalOffset = false
-	else
-		self.windowCorrectionConfig.applyToIniitalOffset = true
-	end
-
-	self.windowCorrectionConfig.value.windowShift = -self.distanceFromWindow
-
-	return self.windowCorrectionConfig
-end
-
-function FlashList.isInitialScrollIndexInFirstRow(self: FlashListComponent)
-	return (
-		if self.props.initialScrollIndex ~= nil
-			then self.props.initialScrollIndex
-			else self.state.numColumns
-	) < self.state.numColumns
-end
-
-function FlashList.validateListSize(self: FlashListComponent, event: LayoutChangeEvent)
-	local height = event.nativeEvent.layout.height
-	local width = event.nativeEvent.layout.width
-
-	self:clearRenderSizeWarningTimeout()
-
-	if math.floor(height) < 1 or math.floor(width) < 1 then
-		self.renderedSizeWarningTimeoutId = setTimeout(function()
-			console.warn(Warnings.unusableRenderedSize)
-		end, 1000)
-	end
-end
-
-function FlashList.handleSizeChange(self: FlashListComponent, event: LayoutChangeEvent)
-	self:validateListSize(event)
-
-	local oldSize = self.listFixedDimensionSize
-	local newSize = if toJSBoolean(self.props.horizontal)
-		then event.nativeEvent.layout.height
-		else event.nativeEvent.layout.width
-
-	-- >0 check is to avoid rerender on mount where it would be redundant
-	self.listFixedDimensionSize = newSize
-
-	if oldSize > 0 and oldSize ~= newSize then
-		local ref = if typeof(self.rlvRef) == "table"
-			then self.rlvRef.forceRerender
-			else nil
-		if ref ~= nil then
-			ref()
-		end
-	end
-
-	if toJSBoolean(self.props.onLayout) then
-		self.props.onLayout(event)
-	end
-end
-
 -- private container = (props: object, children: React.ReactNode[]) => {
 -- 	this.clearPostLoadTimeout();
 -- 	return (
@@ -397,29 +625,6 @@ end
 -- 	  </CellRendererComponent>
 -- 	);
 --   };
-
-function FlashList.updateDistanceFromWindow(
-	self: FlashListComponent,
-	event: LayoutChangeEvent
-)
-	local newDistanceFromWindow = if toJSBoolean(self.props.horizontal)
-		then event.nativeEvent.layout.x
-		else event.nativeEvent.layout.y
-
-	if self.distanceFromWindow ~= newDistanceFromWindow then
-		self.distanceFromWindow = newDistanceFromWindow
-		self.windowCorrectionConfig.value.windowShift = -self.distanceFromWindow
-		self.viewabilityManager:updateViewableItems()
-	end
-end
-
-function FlashList.getTransform(self: FlashListComponent)
-	local transformStyle = if toJSBoolean(self.props.horizontal)
-		then self.transformStyleHorizontal
-		else self.transformStyle
-
-	return toJSBoolean(self.props.inverted) and transformStyle or nil
-end
 
 -- private separator = (index: number) => {
 -- 	// Make sure we have data and don't read out of bounds
@@ -511,50 +716,6 @@ end
 -- 	);
 --   }
 
-function FlashList.applyWindowCorrection(
-	self: FlashListComponent,
-	_,
-	_,
-	correctionObject: { windowShift: number }
-)
-	correctionObject.windowShift = -self.distanceFromWindow
-
-	if typeof(self.stickyContainerRef) == "table" then
-		self.stickyContentContainerRef:setEnabled(self.isStickyEnabled)
-	end
-end
-
-function FlashList.rowRendererSticky(self: FlashListComponent, index: number)
-	return self:rowRendererWithIndex(
-		index,
-		FlashListProps.RenderTargetOptions.StickyHeader
-	)
-end
-
-function FlashList.rowRendererWithIndex(
-	self: FlashListComponent,
-	index: number,
-	target: RenderTarget
-)
-	if self.props.renderItem ~= nil then
-		return self.props.renderItem({
-			extraData = if typeof(self.props.extraData) == "table"
-				then self.props.extraData.value
-				else nil,
-			index = index,
-			item = (self.props.data :: any)[index],
-			target = target,
-		})
-	end
-end
-
--- This will prevent render item calls unless data changes.
--- Output of this method is received as children object so returning null here is no issue as long as we handle it inside our child container.
--- @module getCellContainerChild acts as the new rowRenderer and is called directly from our child container.
-function FlashList.emptyRowRenderer(self: FlashListComponent)
-	return nil
-end
-
 -- private getCellContainerChild = (index: number) => {
 --     return (
 --       <>
@@ -574,14 +735,6 @@ end
 --     );
 --   };
 
-function FlashList.recyclerRef(self: FlashListComponent, ref: any)
-	self.rlvRef = ref
-end
-
-function FlashList.stickyContentRef(self: FlashListComponent, ref: any)
-	self.stickyContentContainerRef = ref
-end
-
 -- private stickyOverrideRowRenderer = (
 --     _: any,
 --     __: any,
@@ -597,123 +750,6 @@ end
 --       />
 --     );
 --   };
-
-function FlashList.isStickyEnabled(self: FlashListComponent)
-	local currentOffset = if typeof(self.rlvRef) == "table"
-		then self.rlvRef:getCurrentScrollOffset()
-		else 0
-
-	return currentOffset >= self.distanceFromWindow
-end
-
-function FlashList.onItemLayout(self: FlashListComponent, index: number)
-	self.state.layoutProvider:reportItemLayout(index)
-	self:raiseOnLoadEventIfNeeded()
-end
-
-function FlashList.raiseOnLoadEventIfNeeded(self: FlashListComponent)
-	if not toJSBoolean(self.isListLoaded) then
-		self.isListLoaded = true
-
-		if self.props.onLoad ~= nil then
-			self.props.onLoad({
-				elapsedTimeInMs = os.clock() - self.loadStartTime,
-			})
-		end
-
-		self:runAfterOnLoad()
-	end
-end
-
-function FlashList.runAfterOnLoad(self: FlashListComponent)
-	if self.props.estimatedItemSize == nil then
-		self.itemSizeWarningTimeoutId = setTimeout(function()
-			local averageItemSize = math.floor(self.state.layoutProvider.averageItemSize)
-
-			console.warn(
-				string.gsub(
-					Warnings.estimatedItemSizeMissingWarning,
-					"@size",
-					tostring(averageItemSize)
-				)
-			)
-		end, 1000)
-	end
-
-	self.postLoadTimeoutId = setTimeout(function()
-		-- This force update is required to remove dummy element rendered to measure horizontal list height when  the list doesn't update on its own.
-		-- In most cases this timeout will never be triggered because list usually updates atleast once and this timeout is cleared on update.
-		if toJSBoolean(self.props.horizontal) then
-			self:forceUpdate()
-		end
-	end, 500)
-end
-
-function FlashList.clearPostLoadTimeout(self: FlashListComponent)
-	if self.postLoadTimeoutId ~= nil then
-		clearTimeout(self.postLoadTimeoutId)
-		self.postLoadTimeoutId = nil
-	end
-end
-
-function FlashList.clearRenderSizeWarningTimeout(self: FlashListComponent)
-	if self.renderSizeWarningTimeoutId ~= nil then
-		clearTimeout(self.renderSizeWarningTimeoutId)
-		self.renderSizeWarningTimeoutId = nil
-	end
-end
-
--- Disables recycling for the next frame so that layout animations run well.
--- Warning: Avoid this when making large changes to the data as the list might draw too much to run animations. Single item insertions/deletions
--- should be good. With recycling paused the list cannot do much optimization.
--- The next render will run as normal and reuse items.
-function FlashList.prepareForLayoutAnimationRender(self: FlashListComponent)
-	if self.props.keyExtractor == nil then
-		console.warn(Warnings.missingKeyExtractor)
-	else
-		if typeof(self.rlvRef) == "table" then
-			self.rlvRef:prepareForLayoutAnimationRender()
-		end
-	end
-end
-
-function FlashList.scrollToEnd(self: FlashListComponent, params: { animated: boolean? }?)
-	if typeof(self.rlvRef) == "table" then
-		local animated = false
-		if typeof(params) == "table" and params.animated ~= nil then
-			animated = params.animated
-		end
-
-		self.rlvRef:scrollToEnd(animated)
-	end
-end
-
-function FlashList.scrollToIndex(
-	self: FlashListComponent,
-	params: {
-		animated: boolean?,
-		index: number,
-		viewOffset: number?,
-		viewPosition: number?,
-	}
-)
-	local layout = nil
-	local listSize = nil
-
-	if typeof(self.rlvRef) == "table" then
-		layout = self.rlvRef:getLayout(params.index)
-		listSize = self.rlvRef:getRenderedSize()
-	end
-
-	if toJSBoolean(layout) and toJSBoolean(listSize) then
-		local horizontal = toJSBoolean(self.props.horizontal)
-		local itemOffset = horizontal and layout.x or layout.y
-		local fixedDimension = horizontal and listSize.width or listSize.height
-		local itemSize = horizontal and layout.width or layout.height
-
-		local scrollOffset = math.max(0, 0)
-	end
-end
 
 function FlashList.getDerivedStateFromProps(
 	nextProps: FlashListProps<unknown>,
@@ -742,7 +778,7 @@ function FlashList.getDerivedStateFromProps(
 
 	if nextProps.data ~= prevState.data then
 		newState.data = nextProps.data
-		newState.dataProvider = prevState.dataProvider.cloneWithRows(nextProps.data)
+		newState.dataProvider = prevState.dataProvider:cloneWithRows(nextProps.data)
 
 		if nextProps.renderItem ~= prevState.renderItem then
 			newState.extraData = Object.assign({}, prevState.extraData)
@@ -768,22 +804,22 @@ end
 function FlashList.getInitialMutableState(
 	flashList: FlashListComponent
 ): FlashListState<unknown>
-	-- local getStableId: ((index: number) -> string)?
+	local getStableId: ((index: number) -> string)?
 
-	-- if flashList.props.keyExtractor ~= nil then
-	-- 	getStableId = function(index)
-	-- 		return tostring(
-	-- 			flashList.props.keyExtractor((flashList.props.data :: any)[index], index)
-	-- 		)
-	-- 	end
-	-- end
+	if flashList.props.keyExtractor ~= nil then
+		getStableId = function(index)
+			return tostring(
+				flashList.props.keyExtractor((flashList.props.data :: any)[index], index)
+			)
+		end
+	end
 
 	return {
 		data = nil,
 		layoutProvider = nil :: any,
-		-- dataProvider = DataProvider.new(function(r1, r2)
-		-- 	return r1 ~= r2
-		-- end, getStableId),
+		dataProvider = DataProvider.new(function(r1, r2)
+			return r1 ~= r2
+		end, getStableId),
 		numColumns = 0,
 	}
 end
