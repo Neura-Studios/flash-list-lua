@@ -29,14 +29,16 @@ export type Point = LayoutManager.Point
 export type WrapGridLayoutManager = LayoutManager.WrapGridLayoutManager
 local GridLayoutManager = require("./core/layoutmanager/GridLayoutManager")
 export type GridLayoutManager = GridLayoutManager.GridLayoutManager
-local ProgressiveListView = require("./core/ProgressiveListView")
-export type ProgressiveListView = ProgressiveListView.ProgressiveListView
-export type ProgressiveListViewProps = ProgressiveListView.ProgressiveListViewProps
+local GridLayoutProvider = require("./core/dependencies/GridLayoutProvider")
+export type GridLayoutProvider = GridLayoutProvider.GridLayoutProvider
 local DebugHandlers = require("./core/devutils/debughandlers/DebugHandlers")
 export type DebugHandlers = DebugHandlers.DebugHandlers
 local ViewabilityTracker = require("./core/ViewabilityTracker")
 export type ViewabilityTracker = ViewabilityTracker.ViewabilityTracker
 export type WindowCorrection = ViewabilityTracker.WindowCorrection
+local StickyContainer = require("./core/StickyContainer")
+export type StickyContainerProps = StickyContainer.StickyContainerProps
+export type StickyContainer = StickyContainer.StickyContainer
 
 return table.freeze({
 	ContextProvider = ContextProvider,
@@ -47,11 +49,10 @@ return table.freeze({
 	LayoutManager = LayoutManager.LayoutManager,
 	WrapGridLayoutManager = LayoutManager.WrapGridLayoutManager,
 	GridLayoutManager = GridLayoutManager,
+	GridLayoutProvider = GridLayoutProvider,
 	RecyclerListView = (RecyclerListView :: any) :: React.FC<RecyclerListViewProps>,
-	-- TODO Luau: We don't use `ProgressiveListViewProps` as the prop type because of a Luau type checker error with
-	--  intersection types.
-	ProgressiveListView = (ProgressiveListView :: any) :: React.FC<RecyclerListViewProps>,
 	BaseItemAnimator = BaseItemAnimator,
 	BaseScrollView = BaseScrollView,
 	AutoScroll = AutoScroll,
+	StickyContainer = StickyContainer,
 })

@@ -6,12 +6,21 @@ local Boolean = LuauPolyfill.Boolean
 local RecyclerListView = require("../recyclerlistview")
 type Dimension = RecyclerListView.Dimension
 
--- TODO: Import types from their correct places
-type ContentStyle = any
+local FlashListProps = require("../FlashListProps")
+type ContentStyle = FlashListProps.ContentStyle
+
 type OptionalContentStyle = any
 type ViewStyle = any
 
 local exports = {}
+
+export type ContentStyleExplicit = {
+	paddingTop: number,
+	paddingBottom: number,
+	paddingLeft: number,
+	paddingRight: number,
+	backgroundColor: string?,
+}
 
 function exports.updateContentStyle(
 	contentStyle: OptionalContentStyle?,

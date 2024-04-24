@@ -202,4 +202,4 @@ function StickyFooter:hasReachedBoundary(offsetY: number, windowBound: number?):
 	return false
 end
 
-return StickyFooter
+return (StickyFooter :: any) :: React.FC<StickyFooterProps>

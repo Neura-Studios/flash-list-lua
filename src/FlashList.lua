@@ -1,6 +1,9 @@
 -- ROBLOX upstream: https://github.com/shopify/flash-list/blob/da86222b74afc387c439b9f812d8184fa5e07732/FlashList.tsx
 
+--!nolint LocalShadow
+
 local FlashListProps = require("./FlashListProps")
+local RenderTargetOptions = FlashListProps.RenderTargetOptions
 
 local LuauPolyfill = require("@pkg/@jsdotlua/luau-polyfill")
 local Array = LuauPolyfill.Array
@@ -8,19 +11,46 @@ local clearTimeout = LuauPolyfill.clearTimeout
 local console = LuauPolyfill.console
 local Object = LuauPolyfill.Object
 local setTimeout = LuauPolyfill.setTimeout
-local toJSBoolean = LuauPolyfill.Boolean.toJSBoolean
+type Array<T> = LuauPolyfill.Array<T>
 
 local React = require("@pkg/@jsdotlua/react")
 
-local RecyclerListView = require("./recyclerlistview")
-local DataProvider = RecyclerListView.DataProvider
+local recyclerListViewModule = require("./recyclerlistview")
+local RecyclerListView = recyclerListViewModule.RecyclerListView
+local StickyContainer = recyclerListViewModule.StickyContainer
+local DataProvider = recyclerListViewModule.DataProvider
+type StickyContainerProps = recyclerListViewModule.StickyContainerProps
 
 local ViewabilityManager = require("./viewability/ViewabilityManager")
 local Warnings = require("./errors/Warnings")
+local CustomError = require("./errors/CustomError")
+local ExceptionList = require("./errors/ExceptionList")
 
--- TODO: Import `GridLayoutProviderWithProps` and its type.
-local GridLayoutProviderWithProps = { new = function(a, b, c, d, e) end }
-type GridLayoutProviderWithProps<T> = any
+local PlatformHelper = require("./native/config/PlatformHelper")
+local PlatformConfig = PlatformHelper.PlatformConfig
+local getFooterContainer = PlatformHelper.getFooterContainer
+local getCellContainerPlatformStyles = PlatformHelper.getCellContainerPlatformStyles
+
+local AutoLayoutView = require("./native/auto-layout/AutoLayoutView")
+local CellContainer = require("./native/cell-container/CellContainer")
+
+local ContentContainerUtils = require("./utils/ContentContainerUtils")
+local getContentContainerPadding = ContentContainerUtils.getContentContainerPadding
+local hasUnsupportedKeysInContentContainerStyle =
+	ContentContainerUtils.hasUnsupportedKeysInContentContainerStyle
+local updateContentStyle = ContentContainerUtils.updateContentStyle
+type ContentStyleExplicit = ContentContainerUtils.ContentStyleExplicit
+
+local RobloxUtils = require("./utils/RobloxUtils")
+local getFillCrossSpaceStyle = RobloxUtils.getFillCrossSpaceStyle
+
+local GridLayoutProviderWithProps = require("./GridLayoutProviderWithProps")
+type GridLayoutProviderWithProps<T> =
+	GridLayoutProviderWithProps.GridLayoutProviderWithProps<T>
+
+local PureComponentWrapper = require("./PureComponentWrapper")
+
+local e = React.createElement
 
 type LayoutChangeEvent = any
 
@@ -33,9 +63,47 @@ type FlashListProps<TItem> = FlashListProps.FlashListProps<TItem>
 type FlashListState<TItem> = FlashListProps.FlashListState<TItem>
 type RenderTarget = FlashListProps.RenderTarget
 
+type StickyProps = StickyContainerProps & {
+	children: any?,
+}
+local StickyHeaderContainer = StickyContainer :: React.FC<StickyProps>
+
+local function validateProps(props: FlashListProps<unknown>)
+	if props.onRefresh and type(props.refreshing) ~= "boolean" then
+		error(CustomError.new(ExceptionList.refreshBooleanMissing))
+	end
+
+	if
+		props.stickyHeaderIndices
+		and #props.stickyHeaderIndices > 0
+		and props.horizontal
+	then
+		error(CustomError.new(ExceptionList.stickyWhileHorizontalNotSupported))
+	end
+
+	if (props.numColumns :: number) > 1 and props.horizontal then
+		error(CustomError.new(ExceptionList.columnsWhileHorizontalNotSupported))
+	end
+
+	-- Note: Skipping style check because it's not relevant in Roblox.
+
+	if hasUnsupportedKeysInContentContainerStyle(props.contentContainerStyle) then
+		console.warn(Warnings.styleContentContainerUnsupported)
+	end
+
+	return true
+end
+
 local FlashList: FlashListComponent = React.PureComponent:extend("FlashList")
 
+FlashList.defaultProps = {
+	data = {},
+	numColumns = 1,
+}
+
 function FlashList:init(props)
+	local self = self :: FlashListComponent
+
 	-- self.rlvRef: RecyclerListView<RecyclerListViewProps, any>? = nil
 	-- self.stickyContentContainerRef: PureComponentWrapper? = nil
 	self.listFixedDimensionSize = 0
@@ -49,6 +117,8 @@ function FlashList:init(props)
 		paddingRight = 0,
 		paddingTop = 0,
 	}
+
+	validateProps(props)
 
 	self.loadStartTime = os.clock()
 	self.isListLoaded = false
@@ -67,7 +137,7 @@ function FlashList:init(props)
 	-- self.renderedSizeWarningTimeoutId: Timeout? = nil
 
 	if props.estimatedListSize ~= nil then
-		if toJSBoolean(props.horizontal) then
+		if props.horizontal then
 			self.listFixedDimensionSize = props.estimatedListSize.height
 		else
 			self.listFixedDimensionSize = props.estimatedListSize.width
@@ -124,10 +194,10 @@ function FlashList:init(props)
 	end
 
 	self.getUpdatedWindowCorrectionConfig = function()
-		if toJSBoolean(self.isInitialScrollIndexInFirstRow()) then
-			self.windowCorrectionConfig.applyToIniitalOffset = false
+		if self.isInitialScrollIndexInFirstRow() then
+			self.windowCorrectionConfig.applyToInitialOffset = false
 		else
-			self.windowCorrectionConfig.applyToIniitalOffset = true
+			self.windowCorrectionConfig.applyToInitialOffset = true
 		end
 
 		self.windowCorrectionConfig.value.windowShift = -self.distanceFromWindow
@@ -159,8 +229,8 @@ function FlashList:init(props)
 	self.handleSizeChange = function(event: LayoutChangeEvent)
 		self.validateListSize(event)
 
-		local oldSize = self.listFixedDimensionSize
-		local newSize = if toJSBoolean(self.props.horizontal)
+		local oldSize: number = self.listFixedDimensionSize
+		local newSize = if self.props.horizontal
 			then event.nativeEvent.layout.height
 			else event.nativeEvent.layout.width
 
@@ -168,11 +238,9 @@ function FlashList:init(props)
 		self.listFixedDimensionSize = newSize
 
 		if oldSize > 0 and oldSize ~= newSize then
-			local ref = if typeof(self.rlvRef) == "table"
-				then self.rlvRef.forceRerender
-				else nil
+			local ref = if self.rlvRef then self.rlvRef.forceRerender else nil
 			if ref ~= nil then
-				ref()
+				ref(self.rlvRef)
 			end
 		end
 
@@ -182,7 +250,7 @@ function FlashList:init(props)
 	end
 
 	self.updateDistanceFromWindow = function(event: LayoutChangeEvent)
-		local newDistanceFromWindow = if toJSBoolean(self.props.horizontal)
+		local newDistanceFromWindow = if self.props.horizontal
 			then event.nativeEvent.layout.x
 			else event.nativeEvent.layout.y
 
@@ -194,17 +262,18 @@ function FlashList:init(props)
 	end
 
 	self.getTransform = function()
-		local transformStyle = if toJSBoolean(self.props.horizontal)
-			then self.transformStyleHorizontal
-			else self.transformStyle
+		-- local transformStyle = if self.props.horizontal
+		-- 	then self.transformStyleHorizontal
+		-- 	else self.transformStyle
 
-		return toJSBoolean(self.props.inverted) and transformStyle or nil
+		-- return self.props.inverted and transformStyle or nil
+		return nil
 	end
 
 	self.applyWindowCorrection = function(_, _, correctionObject: { windowShift: number })
 		correctionObject.windowShift = -self.distanceFromWindow
 
-		if typeof(self.stickyContainerRef) == "table" then
+		if self.stickyContainerRef then
 			self.stickyContentContainerRef:setEnabled(self.isStickyEnabled)
 		end
 	end
@@ -219,7 +288,7 @@ function FlashList:init(props)
 	self.rowRendererWithIndex = function(index: number, target: RenderTarget)
 		if self.props.renderItem ~= nil then
 			return self.props.renderItem({
-				extraData = if typeof(self.props.extraData) == "table"
+				extraData = if type(self.props.extraData) == "table"
 					then self.props.extraData.value
 					else nil,
 				index = index,
@@ -245,8 +314,8 @@ function FlashList:init(props)
 	end
 
 	self.isStickyEnabled = function()
-		local currentOffset = if typeof(self.rlvRef) == "table"
-			then self.rlvRef.getCurrentScrollOffset()
+		local currentOffset = if self.rlvRef
+			then self.rlvRef:getCurrentScrollOffset()
 			else 0
 
 		return currentOffset >= self.distanceFromWindow
@@ -258,7 +327,7 @@ function FlashList:init(props)
 	end
 
 	self.raiseOnLoadEventIfNeeded = function()
-		if not toJSBoolean(self.isListLoaded) then
+		if not self.isListLoaded then
 			self.isListLoaded = true
 
 			if self.props.onLoad ~= nil then
@@ -275,7 +344,7 @@ function FlashList:init(props)
 		if self.props.estimatedItemSize == nil then
 			self.itemSizeWarningTimeoutId = setTimeout(function()
 				local averageItemSize =
-					math.floor(self.state.layoutProvider.averageItemSize)
+					math.floor(self.state.layoutProvider:averageItemSize())
 
 				console.warn(
 					string.gsub(
@@ -290,7 +359,7 @@ function FlashList:init(props)
 		self.postLoadTimeoutId = setTimeout(function()
 			-- This force update is required to remove dummy element rendered to measure horizontal list height when  the list doesn't update on its own.
 			-- In most cases this timeout will never be triggered because list usually updates atleast once and this timeout is cleared on update.
-			if toJSBoolean(self.props.horizontal) then
+			if self.props.horizontal then
 				self:forceUpdate()
 			end
 		end, 500)
@@ -318,20 +387,20 @@ function FlashList:init(props)
 		if self.props.keyExtractor == nil then
 			console.warn(Warnings.missingKeyExtractor)
 		else
-			if typeof(self.rlvRef) == "table" then
-				self.rlvRef.prepareForLayoutAnimationRender()
+			if self.rlvRef then
+				self.rlvRef:prepareForLayoutAnimationRender()
 			end
 		end
 	end
 
 	self.scrollToEnd = function(params: { animated: boolean? }?)
-		if typeof(self.rlvRef) == "table" then
+		if self.rlvRef then
 			local animated = false
-			if typeof(params) == "table" and params.animated ~= nil then
+			if params and params.animated ~= nil then
 				animated = params.animated
 			end
 
-			self.rlvRef.scrollToEnd(animated)
+			self.rlvRef:scrollToEnd(animated)
 		end
 	end
 
@@ -344,24 +413,23 @@ function FlashList:init(props)
 		local layout = nil
 		local listSize = nil
 
-		if typeof(self.rlvRef) == "table" then
-			layout = self.rlvRef.getLayout(params.index)
-			listSize = self.rlvRef.getRenderedSize()
+		if self.rlvRef then
+			layout = self.rlvRef:getLayout(params.index)
+			listSize = self.rlvRef:getRenderedSize()
 		end
 
 		if layout ~= nil and listSize ~= nil then
-			local horizontal = toJSBoolean(self.props.horizontal)
+			local horizontal = self.props.horizontal
 			local itemOffset = horizontal and layout.x or layout.y
 			local fixedDimension = horizontal and listSize.width or listSize.height
 			local itemSize = horizontal and layout.width or layout.height
 
-			local viewPosition = toJSBoolean(params.viewPosition) and params.viewPosition
-				or 0
+			local viewPosition = params.viewPosition and params.viewPosition or 0
 			local scrollOffset =
 				math.max(0, itemOffset - viewPosition * (fixedDimension - itemSize))
 
 			if self.rlvRef ~= nil then
-				self.rlvRef.scrollToOffset(
+				self.rlvRef:scrollToOffset(
 					scrollOffset,
 					scrollOffset,
 					params.animated,
@@ -378,9 +446,7 @@ function FlashList:init(props)
 		viewPosition: number?,
 	})
 		local index = Array.indexOf(self.props.data or {}, params.item)
-		index = toJSBoolean(index) and index or -1
-
-		if index >= 0 then
+		if index and index >= 1 then
 			self.scrollToIndex(Object.assign({}, params, { index = index }))
 		end
 	end
@@ -389,17 +455,17 @@ function FlashList:init(props)
 		animated: boolean?,
 		offset: number,
 	})
-		local x = toJSBoolean(self.props.horizontal) and params.offset or 0
-		local y = toJSBoolean(self.props.horizontal) and 0 or params.offset
+		local x = self.props.horizontal and params.offset or 0
+		local y = self.props.horizontal and 0 or params.offset
 
 		if self.rlvRef ~= nil then
-			self.rlvRef.scrollToOffset(x, y, params.animated)
+			self.rlvRef:scrollToOffset(x, y, params.animated)
 		end
 	end
 
 	self.getScrollableNode = function()
 		if self.rlvRef ~= nil then
-			return self.rlvRef.getScrollableNode()
+			return self.rlvRef:getScrollableNode()
 		end
 
 		return nil
@@ -412,46 +478,208 @@ function FlashList:init(props)
 	self.recordInteraction = function()
 		self.viewabilityManager:recordInteraction()
 	end
+
+	self.container = function(props: any, children: Array<React.Node>)
+		self.clearPostLoadTimeout()
+
+		return e(React.Fragment, {}, {
+			Header = e(PureComponentWrapper, {
+				enabled = (
+						self.isListLoaded
+						or #children > 0
+						or self.isEmptyList
+					) :: boolean,
+				contentStyle = self.props.contentContainerStyle,
+				horizontal = self.props.horizontal,
+				header = self.props.ListHeaderComponent,
+				extraData = self.state.extraData,
+				headerStyle = self.props.ListHeaderComponentStyle,
+				inverted = self.props.inverted,
+				renderer = self.header,
+			}),
+
+			Content = e(
+				AutoLayoutView,
+				Object.assign({}, props, {
+					onBlankAreaEvent = self.props.onBlankArea,
+					onLayout = self.updateDistanceFromWindow,
+					disableAutoLayout = self.props.disableAutoLayout,
+				}),
+				children
+			),
+
+			EmptyList = if self.isEmptyList
+				then self:getValidComponent(self.props.ListEmptyComponent)
+				else nil,
+
+			Footer = e(PureComponentWrapper, {
+				enabled = (
+						self.isListLoaded
+						or #children > 0
+						or self.isEmptyList
+					) :: boolean,
+				contentStyle = self.props.contentContainerStyle,
+				horizontal = self.props.horizontal,
+				header = self.props.ListFooterComponent,
+				extraData = self.state.extraData,
+				headerStyle = self.props.ListFooterComponentStyle,
+				inverted = self.props.inverted,
+				renderer = self.footer,
+			}),
+
+			HeightMeasurement = self.getComponentForHeightMeasurement(),
+		})
+	end
+
+	self.itemContainer = function(props: any, parentProps: any)
+		local CellRendererComponent = self.props.CellRendererComponent or CellContainer
+		props.width = nil
+
+		return e(
+			CellRendererComponent,
+			Object.assign({}, props, {
+				-- style = Object.assign({}, props.style, {
+				-- 	-- flexDirection = self.props.horizontal and "row" or "column",
+				-- 	-- alignItems = "stretch",
+				-- 	-- ...self.getTransform(),
+				-- 	-- ...
+				-- }),
+				-- index = parentProps.index,
+			}, getCellContainerPlatformStyles(self.props.inverted, parentProps)),
+			{
+				CellContainerChild = e(PureComponentWrapper, {
+					extendedState = parentProps.extendedState,
+					internalSnapshot = parentProps.internalSnapshot,
+					data = parentProps.data,
+					arg = parentProps.index,
+					renderer = self.getCellContainerChild,
+				}),
+			}
+		)
+	end
+
+	self.separator = function(index: number)
+		-- Make sure we have data and don't read out of bounds
+		if self.props.data == nil or index >= #self.props.data then
+			return nil :: React.Node
+		end
+
+		local data = self.props.data :: Array<any>
+		local leadingItem = data[index]
+		local trailingItem = data[index + 1]
+
+		local props = {
+			leadingItem = leadingItem,
+			trailingItem = trailingItem,
+		}
+
+		local Separator = self.props.ItemSeparatorComponent
+		return Separator and e(Separator, props)
+	end
+
+	self.header = function()
+		return e(React.Fragment, {}, {
+			e(View, {
+				style = {
+					paddingTop = self.contentStyle.paddingTop,
+					paddingLeft = self.contentStyle.paddingLeft,
+				},
+			}),
+
+			e(View, {
+				style = Object.assign(
+					{},
+					self.props.ListHeaderComponentStyle,
+					self.getTransform()
+				),
+			}, {
+				self:getValidComponent(self.props.ListHeaderComponent),
+			}),
+		})
+	end
+
+	self.footer = function()
+		-- The web version of CellContainer uses a div directly which doesn't compose styles the way a View does.
+		-- We will skip using CellContainer on web to avoid this issue. `getFooterContainer` on web will
+		-- return a View.
+		local FooterContainer = getFooterContainer() or CellContainer
+
+		return e(React.Fragment, {}, {
+			e(FooterContainer, {
+				index = -1,
+				style = Object.assign(
+					{},
+					self.props.ListFooterComponentStyle,
+					self.getTransform()
+				),
+			}, {
+				self:getValidComponent(self.props.ListFooterComponent),
+			}),
+
+			e(View, {
+				style = {
+					paddingBottom = self.contentStyle.paddingBottom,
+					paddingRight = self.contentStyle.paddingRight,
+				},
+			}),
+		})
+	end
+
+	self.getComponentForHeightMeasurement = function()
+		return if self.props.horizontal
+				and not self.props.disableHorizontalListHeightMeasurement
+				and not self.isListLoaded
+				and self.state.dataProvider:getSize() > 0
+			then e(
+				"Frame",
+				Object.assign({
+					BackgroundTransparency = 1,
+				}, getFillCrossSpaceStyle(self.props.horizontal)),
+				{
+					HeightMeasurement = self.rowRendererWithIndex(
+						math.min(self.state.dataProvider:getSize(), 1),
+						RenderTargetOptions.Measurement
+					),
+				}
+			)
+			else nil
+	end
+
+	self.getCellContainerChild = function(index: number)
+		return e(React.Fragment, {}, {
+			if self.props.inverted then self.separator(index) else nil,
+			e(
+				"Frame",
+				Object.assign({
+					BackgroundTransparency = 1,
+				}, getFillCrossSpaceStyle(self.props.horizontal)),
+				{
+					ListItem = self.rowRendererWithIndex(index, RenderTargetOptions.Cell),
+				}
+			),
+			if self.props.inverted then nil else self.separator(index),
+		})
+	end
+
+	self.stickyOverrideRowRenderer = function(_, __, index: number, ___)
+		return e(PureComponentWrapper, {
+			ref = self.stickyContentRef,
+			enabled = self.isStickyEnabled,
+			arg = index,
+			renderer = self.rowRendererSticky,
+		})
+	end
 end
 
--- private validateProps() {
--- 	if (this.props.onRefresh && typeof this.props.refreshing !== "boolean") {
--- 		throw new CustomError(ExceptionList.refreshBooleanMissing);
--- 	}
--- 	if (
--- 		Number(this.props.stickyHeaderIndices?.length) > 0 &&
--- 		this.props.horizontal
--- 	) {
--- 		throw new CustomError(ExceptionList.stickyWhileHorizontalNotSupported);
--- 	}
--- 	if (Number(this.props.numColumns) > 1 && this.props.horizontal) {
--- 		throw new CustomError(ExceptionList.columnsWhileHorizontalNotSupported);
--- 	}
-
--- 	// `createAnimatedComponent` always passes a blank style object. To avoid warning while using AnimatedFlashList we've modified the check
--- 	// `style` prop can be an array. So we need to validate every object in array. Check: https://github.com/Shopify/flash-list/issues/651
--- 	if (
--- 		__DEV__ &&
--- 		Object.keys(StyleSheet.flatten(this.props.style ?? {})).length > 0
--- 	) {
--- 		console.warn(WarningList.styleUnsupported);
--- 	}
--- 	if (
--- 		hasUnsupportedKeysInContentContainerStyle(
--- 		this.props.contentContainerStyle
--- 	)
--- 	) {
--- 		console.warn(WarningList.styleContentContainerUnsupported);
--- 	}
--- }
-
 function FlashList:componentDidMount()
+	local self = self :: FlashListComponent
 	if self.props.data ~= nil and #self.props.data > 0 then
 		self.raiseOnLoadEventIfNeeded()
 	end
 end
 
 function FlashList:componentWillUnmount()
+	local self = self :: FlashListComponent
 	self.viewabilityManager:dispose()
 	self.clearPostLoadTimeout()
 	self.clearRenderSizeWarningTimeout()
@@ -461,295 +689,97 @@ function FlashList:componentWillUnmount()
 	end
 end
 
--- render() {
---   this.isEmptyList = this.state.dataProvider.getSize() === 0;
---   updateContentStyle(this.contentStyle, this.props.contentContainerStyle);
+function FlashList:render()
+	local self = self :: FlashListComponent
 
---   const {
---     drawDistance,
---     removeClippedSubviews,
---     stickyHeaderIndices,
---     horizontal,
---     onEndReachedThreshold,
---     estimatedListSize,
---     initialScrollIndex,
---     style,
---     contentContainerStyle,
---     renderScrollComponent,
---     ...restProps
---   } = this.props;
+	self.isEmptyList = self.state.dataProvider:getSize() == 0
+	updateContentStyle(self.contentStyle, self.props.contentContainerStyle)
 
---   // RecyclerListView simply ignores if initialScrollIndex is set to 0 because it doesn't understand headers
---   // Using initialOffset to force RLV to scroll to the right place
---   const initialOffset =
---     (this.isInitialScrollIndexInFirstRow() && this.distanceFromWindow) ||
---     undefined;
---   const finalDrawDistance =
---     drawDistance === undefined
---       ? PlatformConfig.defaultDrawDistance
---       : drawDistance;
+	local drawDistance = self.props.drawDistance
+	local removeClippedSubviews = self.props.removeClippedSubviews
+	local stickyHeaderIndices = self.props.stickyHeaderIndices
+	local horizontal = self.props.horizontal
+	local onEndReachedThreshold = self.props.onEndReachedThreshold
+	local estimatedListSize = self.props.estimatedListSize
+	local initialScrollIndex = self.props.initialScrollIndex
+	local style = self.props.style
+	local contentContainerStyle = self.props.contentContainerStyle
+	local renderScrollComponent = self.props.renderScrollComponent
 
---   return (
---     <StickyHeaderContainer
---       overrideRowRenderer={this.stickyOverrideRowRenderer}
---       applyWindowCorrection={this.applyWindowCorrection}
---       stickyHeaderIndices={stickyHeaderIndices}
---       style={
---         this.props.horizontal
---           ? { ...this.getTransform() }
---           : { flex: 1, overflow: "hidden", ...this.getTransform() }
---       }
---     >
---       <ProgressiveListView
---         {...restProps}
---         ref={this.recyclerRef}
---         layoutProvider={this.state.layoutProvider}
---         dataProvider={this.state.dataProvider}
---         rowRenderer={this.emptyRowRenderer}
---         canChangeSize
---         isHorizontal={Boolean(horizontal)}
---         scrollViewProps={{
---           onScrollBeginDrag: this.onScrollBeginDrag,
---           onLayout: this.handleSizeChange,
---           refreshControl:
---             this.props.refreshControl || this.getRefreshControl(),
+	-- RecyclerListView simply ignores if initialScrollIndex is set to 0 because it doesn't understand headers
+	-- Using initialOffset to force RLV to scroll to the right place
+	local initialOffset = (
+		self.isInitialScrollIndexInFirstRow() and self.distanceFromWindow
+	) or nil
+	local finalDrawDistance = if drawDistance == nil
+		then PlatformConfig.defaultDrawDistance
+		else drawDistance
 
---           // Min values are being used to suppress RLV's bounded exception
---           style: { minHeight: 1, minWidth: 1 },
---           contentContainerStyle: {
---             backgroundColor: this.contentStyle.backgroundColor,
+	local listViewProps = Object.assign({}, self.props, {
+		ref = self.recyclerRef,
+		layoutProvider = self.state.layoutProvider,
+		dataProvider = self.state.dataProvider,
+		rowRenderer = self.emptyRowRenderer,
+		canChangeSize = true,
+		isHorizontal = horizontal == true,
+		scrollViewProps = Object.assign({
+			onScrollBeginDrag = self.onScrollBeginDrag,
+			onLayout = self.handleSizeChange,
+			refreshControl = self.props.refreshControl or self.getRefreshControl(),
 
---             // Required to handle a scrollview bug. Check: https://github.com/Shopify/flash-list/pull/187
---             minHeight: 1,
---             minWidth: 1,
+			-- Min values are being used to suppress RLV's bounded exception
+			-- style = { minHeight = 1, minWidth = 1 },
+			contentContainerStyle = Object.assign({
+				backgroundColor = self.contentStyle.backgroundColor,
+			}, getContentContainerPadding(self.contentStyle, horizontal)),
+		}, self.props.overrideProps),
+		forceNonDeterministicRendering = true,
+		renderItemContainer = self.itemContainer,
+		renderContentContainer = self.container,
+		onEndReached = self.onEndReached,
+		onEndReachedThresholdRelative = onEndReachedThreshold,
+		extendedState = self.state.extraData,
+		layoutSize = estimatedListSize,
+		maxRenderAhead = 3 * finalDrawDistance,
+		finalRenderAheadOffset = finalDrawDistance,
+		renderAheadStep = finalDrawDistance,
+		initialRenderIndex = if not self.isInitialScrollIndexInFirstRow()
+			then initialScrollIndex
+			else nil,
+		initialOffset = initialOffset,
+		onItemLayout = self.onItemLayout,
+		onScroll = self.onScroll,
+		onVisibleIndicesChanged = if self.viewabilityManager.shouldListenToVisibleIndices
+			then function()
+				self.viewabilityManager:onVisibleIndicesChanged()
+			end
+			else nil,
+		windowCorrectionConfig = self.getUpdatedWindowCorrectionConfig(),
+		itemAnimator = self.itemAnimator,
+		suppressBoundedSizeException = true,
+		externalScrollView = renderScrollComponent,
+	})
 
---             ...getContentContainerPadding(this.contentStyle, horizontal),
---           },
---           ...this.props.overrideProps,
---         }}
---         forceNonDeterministicRendering
---         renderItemContainer={this.itemContainer}
---         renderContentContainer={this.container}
---         onEndReached={this.onEndReached}
---         onEndReachedThresholdRelative={onEndReachedThreshold || undefined}
---         extendedState={this.state.extraData}
---         layoutSize={estimatedListSize}
---         maxRenderAhead={3 * finalDrawDistance}
---         finalRenderAheadOffset={finalDrawDistance}
---         renderAheadStep={finalDrawDistance}
---         initialRenderIndex={
---           (!this.isInitialScrollIndexInFirstRow() && initialScrollIndex) ||
---           undefined
---         }
---         initialOffset={initialOffset}
---         onItemLayout={this.onItemLayout}
---         onScroll={this.onScroll}
---         onVisibleIndicesChanged={
---           this.viewabilityManager.shouldListenToVisibleIndices
---             ? this.viewabilityManager.onVisibleIndicesChanged
---             : undefined
---         }
---         windowCorrectionConfig={this.getUpdatedWindowCorrectionConfig()}
---         itemAnimator={this.itemAnimator}
---         suppressBoundedSizeException
---         externalScrollView={
---           renderScrollComponent as RecyclerListViewProps["externalScrollView"]
---         }
---       />
---     </StickyHeaderContainer>
---   );
--- }
+	return e(StickyHeaderContainer, {
+		overrideRowRenderer = self.stickyOverrideRowRenderer,
+		applyWindowCorrection = self.applyWindowCorrection,
+		stickyHeaderIndices = stickyHeaderIndices,
+		-- style = if horizontal
+		-- 	then { self.getTransform() }
+		-- 	else { flex = 1, overflow = "hidden", self.getTransform() }
+		children = nil :: any,
+	}, e(RecyclerListView, listViewProps))
+end
 
--- private container = (props: object, children: React.ReactNode[]) => {
--- 	this.clearPostLoadTimeout();
--- 	return (
--- 	  <>
--- 		<PureComponentWrapper
--- 		  enabled={this.isListLoaded || children.length > 0 || this.isEmptyList}
--- 		  contentStyle={this.props.contentContainerStyle}
--- 		  horizontal={this.props.horizontal}
--- 		  header={this.props.ListHeaderComponent}
--- 		  extraData={this.state.extraData}
--- 		  headerStyle={this.props.ListHeaderComponentStyle}
--- 		  inverted={this.props.inverted}
--- 		  renderer={this.header}
--- 		/>
--- 		<AutoLayoutView
--- 		  {...props}
--- 		  onBlankAreaEvent={this.props.onBlankArea}
--- 		  onLayout={this.updateDistanceFromWindow}
--- 		  disableAutoLayout={this.props.disableAutoLayout}
--- 		>
--- 		  {children}
--- 		</AutoLayoutView>
--- 		{this.isEmptyList
--- 		  ? this.getValidComponent(this.props.ListEmptyComponent)
--- 		  : null}
--- 		<PureComponentWrapper
--- 		  enabled={this.isListLoaded || children.length > 0 || this.isEmptyList}
--- 		  contentStyle={this.props.contentContainerStyle}
--- 		  horizontal={this.props.horizontal}
--- 		  header={this.props.ListFooterComponent}
--- 		  extraData={this.state.extraData}
--- 		  headerStyle={this.props.ListFooterComponentStyle}
--- 		  inverted={this.props.inverted}
--- 		  renderer={this.footer}
--- 		/>
--- 		{this.getComponentForHeightMeasurement()}
--- 	  </>
--- 	);
---   };
-
---   private itemContainer = (props: any, parentProps: any) => {
--- 	const CellRendererComponent =
--- 	  this.props.CellRendererComponent ?? CellContainer;
--- 	return (
--- 	  <CellRendererComponent
--- 		{...props}
--- 		style={{
--- 		  ...props.style,
--- 		  flexDirection: this.props.horizontal ? "row" : "column",
--- 		  alignItems: "stretch",
--- 		  ...this.getTransform(),
--- 		  ...getCellContainerPlatformStyles(this.props.inverted!!, parentProps),
--- 		}}
--- 		index={parentProps.index}
--- 	  >
--- 		<PureComponentWrapper
--- 		  extendedState={parentProps.extendedState}
--- 		  internalSnapshot={parentProps.internalSnapshot}
--- 		  data={parentProps.data}
--- 		  arg={parentProps.index}
--- 		  renderer={this.getCellContainerChild}
--- 		/>
--- 	  </CellRendererComponent>
--- 	);
---   };
-
--- private separator = (index: number) => {
--- 	// Make sure we have data and don't read out of bounds
--- 	if (
--- 	  this.props.data === null ||
--- 	  this.props.data === undefined ||
--- 	  index + 1 >= this.props.data.length
--- 	) {
--- 	  return null;
--- 	}
-
--- 	const leadingItem = this.props.data[index];
--- 	const trailingItem = this.props.data[index + 1];
-
--- 	const props = {
--- 	  leadingItem,
--- 	  trailingItem,
--- 	  // TODO: Missing sections as we don't have this feature implemented yet. Implement section, leadingSection and trailingSection.
--- 	  // https://github.com/facebook/react-native/blob/8bd3edec88148d0ab1f225d2119435681fbbba33/Libraries/Lists/VirtualizedSectionList.js#L285-L294
--- 	};
--- 	const Separator = this.props.ItemSeparatorComponent;
--- 	return Separator && <Separator {...props} />;
---   };
-
---   private header = () => {
--- 	return (
--- 	  <>
--- 		<View
--- 		  style={{
--- 			paddingTop: this.contentStyle.paddingTop,
--- 			paddingLeft: this.contentStyle.paddingLeft,
--- 		  }}
--- 		/>
-
--- 		<View
--- 		  style={[this.props.ListHeaderComponentStyle, this.getTransform()]}
--- 		>
--- 		  {this.getValidComponent(this.props.ListHeaderComponent)}
--- 		</View>
--- 	  </>
--- 	);
---   };
-
---   private footer = () => {
--- 	/** The web version of CellContainer uses a div directly which doesn't compose styles the way a View does.
--- 	 * We will skip using CellContainer on web to avoid this issue. `getFooterContainer` on web will
--- 	 * return a View. */
--- 	const FooterContainer = getFooterContainer() ?? CellContainer;
--- 	return (
--- 	  <>
--- 		<FooterContainer
--- 		  index={-1}
--- 		  style={[this.props.ListFooterComponentStyle, this.getTransform()]}
--- 		>
--- 		  {this.getValidComponent(this.props.ListFooterComponent)}
--- 		</FooterContainer>
--- 		<View
--- 		  style={{
--- 			paddingBottom: this.contentStyle.paddingBottom,
--- 			paddingRight: this.contentStyle.paddingRight,
--- 		  }}
--- 		/>
--- 	  </>
--- 	);
---   };
-
---   private getComponentForHeightMeasurement = () => {
--- 	return this.props.horizontal &&
--- 	  !this.props.disableHorizontalListHeightMeasurement &&
--- 	  !this.isListLoaded &&
--- 	  this.state.dataProvider.getSize() > 0 ? (
--- 	  <View style={{ opacity: 0 }} pointerEvents="none">
--- 		{this.rowRendererWithIndex(
--- 		  Math.min(this.state.dataProvider.getSize() - 1, 1),
--- 		  RenderTargetOptions.Measurement
--- 		)}
--- 	  </View>
--- 	) : null;
---   };
-
---   private getValidComponent(
--- 	component: React.ComponentType | React.ReactElement | null | undefined
---   ) {
--- 	const PassedComponent = component;
--- 	return (
--- 	  (React.isValidElement(PassedComponent) && PassedComponent) ||
--- 	  (PassedComponent && <PassedComponent />) ||
--- 	  null
--- 	);
---   }
-
--- private getCellContainerChild = (index: number) => {
---     return (
---       <>
---         {this.props.inverted ? this.separator(index) : null}
---         <View
---           style={{
---             flexDirection:
---               this.props.horizontal || this.props.numColumns === 1
---                 ? "column"
---                 : "row",
---           }}
---         >
---           {this.rowRendererWithIndex(index, RenderTargetOptions.Cell)}
---         </View>
---         {this.props.inverted ? null : this.separator(index)}
---       </>
---     );
---   };
-
--- private stickyOverrideRowRenderer = (
---     _: any,
---     __: any,
---     index: number,
---     ___: any
---   ) => {
---     return (
---       <PureComponentWrapper
---         ref={this.stickyContentRef}
---         enabled={this.isStickyEnabled}
---         arg={index}
---         renderer={this.rowRendererSticky}
---       />
---     );
---   };
+function FlashList:getValidComponent(
+	component: React.AbstractComponent<unknown, unknown> | React.ReactElement | nil
+): React.ReactElement | nil
+	return (
+		(React.isValidElement(component :: any) and component)
+		or (component and e(component :: any))
+		or nil
+	)
+end
 
 function FlashList.getDerivedStateFromProps(
 	nextProps: FlashListProps<unknown>,
@@ -758,23 +788,18 @@ function FlashList.getDerivedStateFromProps(
 	local newState = Object.assign({}, prevState)
 
 	if prevState.numColumns ~= nextProps.numColumns then
-		newState.numColumns = if toJSBoolean(nextProps.numColumns)
-			then nextProps.numColumns
-			else 1
+		newState.numColumns = nextProps.numColumns or 1
 		newState.layoutProvider =
 			FlashList.getLayoutProvider(newState.numColumns, nextProps)
-	elseif toJSBoolean(prevState.layoutProvider:updateProps(nextProps).hasExpired) then
+	elseif prevState.layoutProvider:updateProps(nextProps).hasExpired then
 		newState.layoutProvider =
 			FlashList.getLayoutProvider(newState.numColumns, nextProps)
 	end
 
 	-- RLV retries to reposition the first visible item on layout provider change.
 	-- It's not required in our case so we're disabling it.
-	newState.layoutProvider.shouldRefreshWithAnchoring = not toJSBoolean(
-		if typeof(prevState.layoutProvider) == "table"
-			then prevState.layoutProvider.hasExpired
-			else nil
-	)
+	newState.layoutProvider.shouldRefreshWithAnchoring =
+		not if prevState.layoutProvider then prevState.layoutProvider.hasExpired else nil
 
 	if nextProps.data ~= prevState.data then
 		newState.data = nextProps.data
@@ -787,11 +812,7 @@ function FlashList.getDerivedStateFromProps(
 
 	if
 		nextProps.extraData
-		~= (
-			if typeof(prevState.extraData) == "table"
-				then prevState.extraData.value
-				else nil
-		)
+		~= (if prevState.extraData then prevState.extraData.value else nil)
 	then
 		newState.extraData = { value = nextProps.extraData }
 	end
@@ -833,7 +854,7 @@ function FlashList.getLayoutProvider(
 			then props.getItemType(props.data[index], index, props.extraData)
 			else nil
 
-		return toJSBoolean(type) and type or 0
+		return type or 0
 	end, function(index, props, mutableLayout)
 		if props.overrideItemLayout ~= nil then
 			props.overrideItemLayout(
@@ -845,7 +866,7 @@ function FlashList.getLayoutProvider(
 			)
 		end
 
-		local ref = if typeof(mutableLayout) == "table" then mutableLayout.span else nil
+		local ref = if mutableLayout then mutableLayout.span else nil
 		return if ref ~= nil then ref else 1
 	end, function(index, props, mutableLayout)
 		if props.overrideItemLayout ~= nil then
@@ -858,7 +879,7 @@ function FlashList.getLayoutProvider(
 			)
 		end
 
-		return if typeof(mutableLayout) == "table" then mutableLayout.span else nil
+		return if mutableLayout then mutableLayout.span else nil
 	end, flashListProps)
 end
 

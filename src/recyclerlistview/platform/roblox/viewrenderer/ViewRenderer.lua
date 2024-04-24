@@ -15,6 +15,9 @@ local BaseViewRenderer = require("../../../core/viewrenderer/BaseViewRenderer")
 type BaseViewRenderer<T> = BaseViewRenderer.BaseViewRenderer<T>
 type ViewRendererProps<T> = BaseViewRenderer.ViewRendererProps<T>
 
+local RobloxUtils = require("../../../../utils/RobloxUtils")
+local getFillCrossSpaceStyle = RobloxUtils.getFillCrossSpaceStyle
+
 type Props = ViewRendererProps<any>
 type State = {}
 
@@ -152,12 +155,10 @@ function ViewRenderer:render()
 	-- ROBLOX deviation: Upstream uses a lot of flexbox properties. I'm avoiding this for now to keep complexity low.
 	-- However, our implementation below might not be correct.
 	local styleProps = if self.props.forceNonDeterministicRendering
-		then {
+		then Object.assign({
 			Position = UDim2.fromOffset(self.props.x, self.props.y),
-			-- TODO: Is this correct?
-			AutomaticSize = Enum.AutomaticSize.XY,
 			BackgroundTransparency = 1,
-		}
+		}, getFillCrossSpaceStyle(self.props.isHorizontal))
 		else {
 			Position = UDim2.fromOffset(self.props.x, self.props.y),
 			Size = UDim2.fromOffset(self.props.width, self.props.height),

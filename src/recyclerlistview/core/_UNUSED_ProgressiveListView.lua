@@ -8,6 +8,8 @@ local LuauPolyfill = require("@pkg/@jsdotlua/luau-polyfill")
 local extends = LuauPolyfill.extends
 local Object = LuauPolyfill.Object
 
+local React = require("@pkg/@jsdotlua/react")
+
 local RecyclerListView = require("./RecyclerListView")
 type RecyclerListView = RecyclerListView.RecyclerListView
 type RecyclerListViewProps = RecyclerListView.RecyclerListViewProps
@@ -62,9 +64,11 @@ type ProgressiveListView_private = RecyclerListView & {
 }
 type ProgressiveListView_statics = { new: () -> ProgressiveListView }
 
-local noop = function() end
+-- local noop = function() end
+-- local ProgressiveListView =
+-- 	extends(RecyclerListView, "ProgressiveListView", noop) :: ProgressiveListView_private & ProgressiveListView_statics
 local ProgressiveListView =
-	extends(RecyclerListView, "ProgressiveListView", noop) :: ProgressiveListView_private & ProgressiveListView_statics
+	React.Component:extend("ProgressiveListView") :: ProgressiveListView_private & ProgressiveListView_statics
 
 ProgressiveListView.defaultProps = Object.assign({}, RecyclerListView.defaultProps, {
 	maxRenderAhead = math.huge,
@@ -73,12 +77,14 @@ ProgressiveListView.defaultProps = Object.assign({}, RecyclerListView.defaultPro
 })
 
 function ProgressiveListView:init(props)
+	print("PROGRESSIVE LIST INIT")
 	local self = self :: ProgressiveListView_private
 	self.isFirstLayoutComplete = false
 	RecyclerListView.init(self, props)
 end
 
 function ProgressiveListView:componentDidMount(): ()
+	print("PROGRESSIVE LIST MOUNTED")
 	RecyclerListView.componentDidMount(self)
 
 	local self = self :: ProgressiveListView_private
@@ -108,13 +114,20 @@ function ProgressiveListView:updateRenderAheadProgressively(newVal: number): ()
 	local self = self :: ProgressiveListView_private
 	self:cancelRenderAheadUpdate()
 	-- Cancel any pending callback.
-	self.renderAheadUpdateConnection = RunService.RenderStepped:Once(function()
+	local function updateLoop()
 		if not self:updateRenderAheadOffset(newVal) then
 			self:updateRenderAheadProgressively(newVal)
 		else
 			self:incrementRenderAhead()
 		end
-	end)
+	end
+
+	-- NOTE: The list might be running in a storybook plugin. In which case, mock the update loop
+	if RunService:IsStudio() and RunService:IsEdit() then
+		task.delay(0, updateLoop)
+	else
+		self.renderAheadUpdateConnection = RunService.RenderStepped:Once(updateLoop)
+	end
 end
 
 function ProgressiveListView:incrementRenderAhead(): ()

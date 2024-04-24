@@ -9,10 +9,15 @@ type PureComponent<P, S> = React.PureComponent<P, S>
 type ReactElement = React.ReactElement
 
 local RecyclerListView = require("./recyclerlistview")
+type RecyclerListView = RecyclerListView.RecyclerListView
+type RecyclerListViewProps = RecyclerListView.RecyclerListViewProps
 type DataProvider = RecyclerListView.DataProvider
 
 local ViewToken = require("./viewability/ViewToken")
 type ViewToken = ViewToken.ViewToken
+
+-- local GridLayoutProvider = require("./GridLayoutProviderWithProps")
+-- type GridLayoutProviderWithProps<T> = GridLayoutProvider.GridLayoutProviderWithProps<T>
 
 type ExtraData<T> = { value: T? }
 
@@ -270,7 +275,107 @@ export type FlashListState<TItem> = {
 export type FlashListComponent = PureComponent<
 	FlashListProps<unknown>,
 	FlashListState<unknown>
->
+> & {
+	--
+	-- *** PUBLIC ***
+	--
+	prepareForLayoutAnimationRender: (self: FlashListComponent) -> (),
+	scrollToEnd: (
+		self: FlashListComponent,
+		params: {
+			animated: boolean?,
+		}?
+	) -> any,
+	scrollToIndex: (
+		self: FlashListComponent,
+		params: {
+			animated: boolean?,
+			index: number,
+			viewOffset: number?,
+			viewPosition: number?,
+		}
+	) -> any,
+	scrollToItem: (
+		self: FlashListComponent,
+		params: {
+			animated: boolean?,
+			item: any,
+			viewPosition: number?,
+			viewOffset: number?,
+		}
+	) -> any,
+	scrollToOffset: (
+		self: FlashListComponent,
+		params: {
+			animated: boolean?,
+			offset: number,
+		}
+	) -> any,
+	getScrollableNode: (self: FlashListComponent) -> number | nil,
+	recyclerlistview_unsafe: (self: FlashListComponent) -> any,
+	firstItemOffset: (self: FlashListComponent) -> any,
+	clearLayoutCacheOnUpdate: (self: FlashListComponent) -> any,
+	recordInteraction: any,
+	--
+	-- *** PRIVATE ***
+	--
+	rlvRef: RecyclerListView,
+	stickyContentContainerRef: PureComponentWrapper,
+	listFixedDimensionSize: number,
+	-- transformStyle: any,
+	-- transformStyleHorizontal: any,
+	distanceFromWindow: number,
+	contentStyle: ContentStyleExplicit,
+	loadStartTime: number,
+	isListLoaded: boolean,
+	windowCorrectionConfig: WindowCorrectionConfig,
+	postLoadTimeoutId: ReturnType<typeof(setTimeout)>,
+	itemSizeWarningTimeoutId: ReturnType<typeof(setTimeout)>,
+	renderedSizeWarningTimeoutId: ReturnType<typeof(setTimeout)>,
+	isEmptyList: boolean,
+	viewabilityManager: ViewabilityManager<T>,
+	itemAnimator: BaseItemAnimator,
+	-- Some of the state variables need to update when props change
+	onEndReached: any,
+	getRefreshControl: any,
+	onScrollBeginDrag: any,
+	onScroll: any,
+	getUpdatedWindowCorrectionConfig: (self: FlashListComponent) -> any,
+	isInitialScrollIndexInFirstRow: (self: FlashListComponent) -> any,
+	validateListSize: (self: FlashListComponent, event: LayoutChangeEvent) -> any,
+	handleSizeChange: any,
+	container: any,
+	itemContainer: any,
+	updateDistanceFromWindow: any,
+	getTransform: (self: FlashListComponent) -> any,
+	separator: any,
+	header: any,
+	footer: any,
+	getComponentForHeightMeasurement: any,
+	getValidComponent: (
+		self: FlashListComponent,
+		component: React.React_ComponentType<unknown> | React.ReactElement | nil
+	) -> any,
+	applyWindowCorrection: any,
+	rowRendererSticky: any,
+	rowRendererWithIndex: any,
+	--[[*
+		* This will prevent render item calls unless data changes.
+		* Output of this method is received as children object so returning null here is no issue as long as we handle it inside our child container.
+		* @module getCellContainerChild acts as the new rowRenderer and is called directly from our child container.
+	]]
+	emptyRowRenderer: any,
+	getCellContainerChild: any,
+	recyclerRef: any,
+	stickyContentRef: any,
+	stickyOverrideRowRenderer: any,
+	isStickyEnabled: (self: FlashListComponent) -> any,
+	onItemLayout: any,
+	raiseOnLoadEventIfNeeded: any,
+	runAfterOnLoad: any,
+	clearPostLoadTimeout: any,
+	clearRenderSizeWarningTimeout: any,
+}
 
 local RenderTargetOptions: Record<string, RenderTarget> = {
 	Cell = "Cell",

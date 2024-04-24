@@ -1,5 +1,7 @@
 -- ROBLOX upstream: https://github.com/Flipkart/recyclerlistview/blob/1d310dffc80d63e4303bf1213d2f6b0ce498c33a/core/RecyclerListView.tsx
 
+local RunService = game:GetService("RunService")
+
 local LuauPolyfill = require("@pkg/@jsdotlua/luau-polyfill")
 local Object = LuauPolyfill.Object
 local console = LuauPolyfill.console
@@ -149,6 +151,15 @@ export type RecyclerListViewProps = {
 	--If set to true, recyclerlistview will not measure itself if scrollview mounts with zero height or width.
 	--If there are no following events with right dimensions nothing will be rendered.
 	suppressBoundedSizeException: boolean?,
+
+	-- ROBLOX deviation: Merge `ProgressiveListView` into `RecyclerListView` to avoid inheritance complexities with React-lua.
+	maxRenderAhead: number?,
+	renderAheadStep: number?,
+	--[[
+		A smaller final value can help in building up recycler pool in advance. This is only used if there is a valid updated cycle.
+		e.g, if maxRenderAhead is 0 then there will be no cycle and final value will be unused
+	]]
+	finalRenderAheadOffset: number?,
 }
 
 export type RecyclerListViewState = {
@@ -344,6 +355,14 @@ export type RecyclerListView = {
 	_generateRenderStack: (self: RecyclerListView) -> Array<React.Node>,
 	_onScroll: any,
 	_processOnEndReached: (self: RecyclerListView) -> (),
+
+	-- ROBLOX deviation: Merge `ProgressiveListView` into `RecyclerListView` to avoid inheritance complexities with React-lua.
+	renderAheadUpdateConnection: RBXScriptConnection?,
+	isFirstLayoutComplete: boolean,
+	updateRenderAheadProgressively: (self: RecyclerListView, newVal: number) -> (),
+	incrementRenderAhead: (self: RecyclerListView) -> (),
+	performFinalUpdate: (self: RecyclerListView) -> (),
+	cancelRenderAheadUpdate: (self: RecyclerListView) -> (),
 }
 
 local RecyclerListView: RecyclerListView =
@@ -382,6 +401,9 @@ function RecyclerListView:init(props)
 	self._initialOffset = 0
 	self._scrollComponent = nil
 	self._defaultItemAnimator = BaseItemAnimator.new() :: any
+
+	-- ROBLOX deviation: Merge `ProgressiveListView` into `RecyclerListView` to avoid inheritance complexities with React-lua.
+	self.isFirstLayoutComplete = false
 
 	self.scrollToOffset = function(
 		x: number,
@@ -576,6 +598,11 @@ function RecyclerListView:componentDidUpdate(): ()
 end
 
 function RecyclerListView:componentDidMount(): ()
+	-- ROBLOX deviation: Merge `ProgressiveListView` into `RecyclerListView` to avoid inheritance complexities with React-lua.
+	if not self.props.forceNonDeterministicRendering then
+		self:updateRenderAheadProgressively(self:getCurrentRenderAheadOffset())
+	end
+
 	if self._initComplete then
 		self:_processInitialOffset()
 		self:_processOnEndReached()
@@ -583,6 +610,9 @@ function RecyclerListView:componentDidMount(): ()
 end
 
 function RecyclerListView:componentWillUnmount(): ()
+	-- ROBLOX deviation: Merge `ProgressiveListView` into `RecyclerListView` to avoid inheritance complexities with React-lua.
+	self:cancelRenderAheadUpdate()
+
 	self._isMounted = false
 	if self.props.contextProvider then
 		local uniqueKey = self.props.contextProvider:getUniqueKey()
@@ -768,6 +798,14 @@ function RecyclerListView:getVirtualRenderer(): VirtualRenderer
 end
 
 function RecyclerListView:onItemLayout(index: number): ()
+	-- ROBLOX deviation: Merge `ProgressiveListView` into `RecyclerListView` to avoid inheritance complexities with React-lua.
+	if not self.isFirstLayoutComplete then
+		self.isFirstLayoutComplete = true
+		if self.props.forceNonDeterministicRendering then
+			self:updateRenderAheadProgressively(self:getCurrentRenderAheadOffset())
+		end
+	end
+
 	if self.props.onItemLayout then
 		self.props.onItemLayout(index)
 	end
@@ -1104,6 +1142,73 @@ function RecyclerListView:_processOnEndReached(): ()
 				self._onEndReachedCalled = false
 			end
 		end
+	end
+end
+
+function RecyclerListView:updateRenderAheadProgressively(newVal: number): ()
+	self:cancelRenderAheadUpdate()
+	-- Cancel any pending callback.
+	local function updateLoop()
+		if not self:updateRenderAheadOffset(newVal) then
+			self:updateRenderAheadProgressively(newVal)
+		else
+			self:incrementRenderAhead()
+		end
+	end
+
+	-- NOTE: The list might be running in a storybook plugin. In which case, mock the update loop
+	if RunService:IsStudio() and RunService:IsEdit() then
+		task.delay(0, updateLoop)
+	else
+		self.renderAheadUpdateConnection = RunService.RenderStepped:Once(updateLoop)
+	end
+end
+
+function RecyclerListView:incrementRenderAhead(): ()
+	if self.props.maxRenderAhead and self.props.renderAheadStep then
+		local layoutManager = self:getVirtualRenderer():getLayoutManager()
+		local currentRenderAheadOffset = self:getCurrentRenderAheadOffset()
+		if layoutManager then
+			local contentDimension = layoutManager:getContentDimension()
+			local maxContentSize = if self.props.isHorizontal
+				then contentDimension.width
+				else contentDimension.height
+			if
+				currentRenderAheadOffset < maxContentSize
+				and currentRenderAheadOffset < self.props.maxRenderAhead
+			then
+				local newRenderAheadOffset = currentRenderAheadOffset
+					+ self.props.renderAheadStep
+				self:updateRenderAheadProgressively(newRenderAheadOffset)
+			else
+				self:performFinalUpdate()
+			end
+		end
+	end
+end
+
+function RecyclerListView:performFinalUpdate(): ()
+	self:cancelRenderAheadUpdate()
+	-- Cancel any pending callback.
+
+	local function updateLoop()
+		if self.props.finalRenderAheadOffset ~= nil then
+			self:updateRenderAheadOffset(self.props.finalRenderAheadOffset)
+		end
+	end
+
+	-- NOTE: The list might be running in a storybook plugin. In which case, mock the update loop
+	if RunService:IsStudio() and RunService:IsEdit() then
+		task.delay(0, updateLoop)
+	else
+		self.renderAheadUpdateConnection = RunService.RenderStepped:Once(updateLoop)
+	end
+end
+
+function RecyclerListView:cancelRenderAheadUpdate(): ()
+	if self.renderAheadUpdateConnection ~= nil then
+		self.renderAheadUpdateConnection:Disconnect()
+		self.renderAheadUpdateConnection = nil
 	end
 end
 

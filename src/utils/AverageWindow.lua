@@ -19,6 +19,7 @@ export type AverageWindow = {
 }
 
 local AverageWindow = {}
+AverageWindow.__index = AverageWindow
 
 function AverageWindow.new(size: number, startValue: number?): AverageWindow
 	local self = setmetatable({}, AverageWindow)

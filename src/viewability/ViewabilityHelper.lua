@@ -65,6 +65,7 @@ export type ViewabilityHelper = {
 }
 
 local ViewabilityHelper = {}
+ViewabilityHelper.__index = ViewabilityHelper
 
 function ViewabilityHelper.new(
 	viewabilityConfig: ViewabilityConfig?,

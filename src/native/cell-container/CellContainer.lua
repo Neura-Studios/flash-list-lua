@@ -8,7 +8,8 @@ local React = require("@pkg/@jsdotlua/react")
 -- On Roblox we use a Frame instead of cell container till we build native Roblox implementations
 local CellContainer = React.forwardRef(function(props: any, ref)
 	props = Object.assign({
-		Size = UDim2.fromScale(1, 1),
+		-- Size = UDim2.fromScale(1, 1),
+		AutomaticSize = Enum.AutomaticSize.XY,
 		BackgroundTransparency = 1,
 	}, props)
 

@@ -9,6 +9,8 @@ type Array<T> = LuauPolyfill.Array<T>
 	Created by ananya.chandra on 20/09/18.
 ]]
 
+local React = require("@pkg/@jsdotlua/react")
+
 local stickyObjectModule = require("./StickyObject")
 local StickyObject = stickyObjectModule.default
 type StickyObject = stickyObjectModule.StickyObject
@@ -129,4 +131,4 @@ function StickyHeader:hasReachedBoundary(offsetY: number, _windowBound: number?)
 	return false
 end
 
-return StickyHeader
+return (StickyHeader :: any) :: React.FC<StickyObjectProps>

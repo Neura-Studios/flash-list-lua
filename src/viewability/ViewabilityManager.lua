@@ -47,6 +47,7 @@ export type ViewabilityManager<T> = {
 }
 
 local ViewabilityManager = {}
+ViewabilityManager.__index = ViewabilityManager
 
 function ViewabilityManager.new<T>(flashListRef: FlashList<T>): ViewabilityManager<T>
 	local self = setmetatable({}, ViewabilityManager)

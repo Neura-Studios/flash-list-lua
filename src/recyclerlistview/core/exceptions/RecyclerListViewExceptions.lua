@@ -3,7 +3,7 @@
 local CustomError = require("./CustomError")
 type Exception = CustomError.Exception
 
-local RecyclerListViewExceptions: { [string]: Exception } = {
+local RecyclerListViewExceptions = {
 	initializationException = {
 		message = "Parameters required for initializing the module are missing",
 		type = "Initialization essentials missing",
