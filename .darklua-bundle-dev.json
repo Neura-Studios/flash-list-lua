@@ -1,0 +1,27 @@
+{
+    "bundle": {
+        "require_mode": {
+            "name": "path",
+            "sources": {
+                "@pkg": "node_modules/.luau-aliases"
+            }
+        }
+    },
+    "generator": "dense",
+    "process": [
+        {
+            "rule": "inject_global_value",
+            "identifier": "__DEV__",
+            "value": true
+        },
+        "remove_types",
+        "remove_comments",
+        "remove_spaces",
+        "compute_expression",
+        "remove_unused_if_branch",
+        "remove_unused_while",
+        "filter_after_early_return",
+        "remove_nil_declaration",
+        "remove_empty_do"
+    ]
+}

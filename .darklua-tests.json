@@ -1,0 +1,32 @@
+{
+    "rules": [
+        "remove_comments",
+        "remove_spaces",
+        {
+            "rule": "convert_require",
+            "current": {
+                "name": "path",
+                "sources": {
+                    "@pkg": "node_modules/.luau-aliases"
+                }
+            },
+            "target": {
+                "name": "roblox",
+                "rojo_sourcemap": "sourcemap.json",
+                "indexing_style": "wait_for_child"
+            }
+        },
+        {
+            "rule": "inject_global_value",
+            "identifier": "__DEV__",
+            "value": false
+        },
+        "compute_expression",
+        "remove_unused_if_branch",
+        "filter_after_early_return",
+        "convert_index_to_field",
+        "remove_unused_while",
+        "remove_empty_do",
+        "remove_method_definition"
+    ]
+}

@@ -7,6 +7,7 @@ local FlashList = require("../../src")
 
 local e = React.createElement
 local useMemo = React.useMemo
+local useRef = React.useRef
 
 local function generateArray(n: number)
 	local arr = table.create(n)
@@ -16,54 +17,47 @@ local function generateArray(n: number)
 	return arr
 end
 
-local ITEMS = generateArray(500)
+local ITEM_COUNT = 500
+local ITEMS = generateArray(ITEM_COUNT)
 
-local containerCount = 0
 local function ItemRenderer(props)
 	local data = props.data
+	local index: number = props.index
 
-	local cellId = useMemo(function()
-		containerCount += 1
-		return containerCount
-	end, {})
+	local backgroundColor = Color3.fromHSV(index / ITEM_COUNT, 0.5, 1.0)
 
 	return e("TextLabel", {
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.new(1, 0, 0, 160),
-		BackgroundColor3 = Color3.new(0.9, 0.9, 0.9),
+		BackgroundColor3 = backgroundColor,
 		BorderSizePixel = 0,
-		Text = `Data: {data}\nCell ID: {cellId}`,
-	}, {
-		Border = e("UIStroke", {
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			Thickness = 1,
-			Color = Color3.new(0, 0, 0),
-		}),
-	})
+		Text = `Data: {data}`,
+		TextSize = 24,
+		FontFace = Font.fromEnum(Enum.Font.BuilderSansBold),
+	}, {})
 end
 
 local function StoryComponent()
 	return e("Frame", {
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        Position = UDim2.fromScale(0.5, 0.5),
-        Size = UDim2.fromOffset(200, 400),
-        BackgroundTransparency = 1,
-    }, {
-        List = e(FlashList.FlashList, {
-            keyExtractor = function(item)
-                return `Item_{item}`
-            end,
-            data = ITEMS,
-            estimatedItemSize = 120,
-            drawDistance = 250,
-            renderItem = function(data)
-                return e(ItemRenderer, {
-                    data = data.data,
-                })
-            end
-        })
-    })
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(400, 400),
+		BackgroundTransparency = 1,
+	}, {
+		List = e(FlashList.FlashList, {
+			data = ITEMS,
+			estimatedItemSize = 160,
+			numColumns = 2,
+			renderItem = function(data)
+				return e(ItemRenderer, {
+					data = data.item,
+					index = data.index,
+				})
+			end,
+			keyExtractor = function(item)
+				return `Item_{item}`
+			end,
+		}),
+	})
 end
 
 return function(target: GuiObject)

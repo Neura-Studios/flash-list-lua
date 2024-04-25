@@ -1,7 +1,7 @@
 {
-  "name": "FlashListLua",
+  "name": "FlashList",
   "tree": {
-    "$path": "roblox-model",
+    "$path": "src",
     "node_modules": {
       "$path": "node_modules"
     }

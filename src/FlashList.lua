@@ -533,7 +533,12 @@ function FlashList:init(props)
 
 	self.itemContainer = function(props: any, parentProps: any)
 		local CellRendererComponent = self.props.CellRendererComponent or CellContainer
+
+		local width = props.width
+		local height = props.height
+
 		props.width = nil
+		props.height = nil
 
 		return e(
 			CellRendererComponent,
@@ -545,6 +550,20 @@ function FlashList:init(props)
 				-- 	-- ...
 				-- }),
 				-- index = parentProps.index,
+				-- Size = UDim2.new(
+				-- 	if width == nil then 1 else 0,
+				-- 	if width == nil then 0 else width,
+				-- 	0,
+				-- 	if height == nil then 0 else height
+				-- ),
+				Size = if self.props.horizontal
+					then UDim2.new(0, width, 1, 0)
+					else UDim2.new(
+						if width == nil then 1 else 0,
+						if width == nil then 0 else width,
+						0,
+						if height == nil then 0 else height
+					),
 			}, getCellContainerPlatformStyles(self.props.inverted, parentProps)),
 			{
 				CellContainerChild = e(PureComponentWrapper, {
@@ -696,7 +715,6 @@ function FlashList:render()
 	updateContentStyle(self.contentStyle, self.props.contentContainerStyle)
 
 	local drawDistance = self.props.drawDistance
-	local removeClippedSubviews = self.props.removeClippedSubviews
 	local stickyHeaderIndices = self.props.stickyHeaderIndices
 	local horizontal = self.props.horizontal
 	local onEndReachedThreshold = self.props.onEndReachedThreshold

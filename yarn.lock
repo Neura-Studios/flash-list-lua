@@ -9,6 +9,11 @@
   dependencies:
     "@jsdotlua/number" "^1.2.6"
 
+"@jsdotlua/chalk@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/chalk/-/chalk-0.2.1.tgz#de3039a898fb69bf449d609b25f5de1c425e56a2"
+  integrity sha512-evM5k7C+SkEvKp6I76gomhkHiWOdhLuZDJ3BB9eGVbgZEI0fEz4gr/KLsFfi/8kIP1yNde+TF0Qf1bSX3a4Bow==
+
 "@jsdotlua/collections@^1.2.6":
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/@jsdotlua/collections/-/collections-1.2.6.tgz#2c763b89c68e603f4692760d371bc3aefb9025f0"
@@ -24,15 +29,347 @@
   dependencies:
     "@jsdotlua/collections" "^1.2.6"
 
+"@jsdotlua/diff-sequences@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/diff-sequences/-/diff-sequences-3.6.1-rc.2.tgz#01e19eb29ed67bce5191176b1d6e9c0f5ed0ae7a"
+  integrity sha512-JlrJq4kuxrdpCB7ImXP7EOqZGKOiaD22Shz2iMqj1Fj9FyKoDukkv9enBkHCb/XmBNNCL7g2QIw0HwkuVom6xw==
+  dependencies:
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+
+"@jsdotlua/emittery@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/emittery/-/emittery-3.6.1-rc.2.tgz#34893b7e78c1f535b928285502c13efd6e8c41b2"
+  integrity sha512-2fIyjDUUYwTedWLPi4gImukIgt9tlJ1Q0135+kz/ly3eaWqXfdIkpR+7Kr/N82VA4TSZ3C1H5COTpgTghkq1iQ==
+  dependencies:
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+    "@jsdotlua/promise" "^3.5.0"
+
 "@jsdotlua/es7-types@^1.2.6":
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/@jsdotlua/es7-types/-/es7-types-1.2.6.tgz#f428089e159fd6084dfd74a9a4687cf3e303bfe0"
   integrity sha512-MwJez3MWKYxYyKYiUDaa6PCZ+h7vfKsDU9J8aX6Py6I6X1LWViaacECZEKSy4DO+jXpjZG9grb0mzqiDR57suw==
 
+"@jsdotlua/expect@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/expect/-/expect-3.6.1-rc.2.tgz#05ce54c533ab4c008930ad873d4d9876b63bd9bc"
+  integrity sha512-2xhOt2jvbQqW5BmocQ48Wb86H/YTquqhPIqyCAoCFHILQCdQeA0EGag+8GKMohodZZAOOAl6bBlqoPVakbA3Ww==
+  dependencies:
+    "@jsdotlua/jest-get-type" "^3.6.1-rc.2"
+    "@jsdotlua/jest-matcher-utils" "^3.6.1-rc.2"
+    "@jsdotlua/jest-message-util" "^3.6.1-rc.2"
+    "@jsdotlua/jest-roblox-shared" "^3.6.1-rc.2"
+    "@jsdotlua/jest-snapshot" "^3.6.1-rc.2"
+    "@jsdotlua/jest-util" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+    "@jsdotlua/promise" "^3.5.0"
+    luau-regexp "^0.2.1"
+
 "@jsdotlua/instance-of@^1.2.6":
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/@jsdotlua/instance-of/-/instance-of-1.2.6.tgz#63c374b1a43396bf16c69c55964513d2f46993b0"
   integrity sha512-LYizoL7ffylgTSunTSUwxlaRJ3GNhk7ucgdRLy/IygtTNnaRb+7ObMP8+xgqQztYx07cRuoq6IRBAR0XVYaO1g==
+
+"@jsdotlua/jest-circus@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-circus/-/jest-circus-3.6.1-rc.2.tgz#292aa1a5d24f88284546efd6824c3aca6cb43935"
+  integrity sha512-cAU65IXW7n8XAsaOULIfVreve4Agl6gJ3Hk8NjltaochY5/8EDShFmpNZj5gBR+mXLlLoQWewrQ/jQ/L4NoNCw==
+  dependencies:
+    "@jsdotlua/chalk" "^0.2.1"
+    "@jsdotlua/expect" "^3.6.1-rc.2"
+    "@jsdotlua/jest-each" "^3.6.1-rc.2"
+    "@jsdotlua/jest-environment" "^3.6.1-rc.2"
+    "@jsdotlua/jest-matcher-utils" "^3.6.1-rc.2"
+    "@jsdotlua/jest-message-util" "^3.6.1-rc.2"
+    "@jsdotlua/jest-roblox-shared" "^3.6.1-rc.2"
+    "@jsdotlua/jest-runtime" "^3.6.1-rc.2"
+    "@jsdotlua/jest-snapshot" "^3.6.1-rc.2"
+    "@jsdotlua/jest-test-result" "^3.6.1-rc.2"
+    "@jsdotlua/jest-types" "^3.6.1-rc.2"
+    "@jsdotlua/jest-util" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+    "@jsdotlua/pretty-format" "^3.6.1-rc.2"
+    "@jsdotlua/promise" "^3.5.0"
+    "@jsdotlua/throat" "^3.6.1-rc.2"
+    luau-regexp "^0.2.1"
+
+"@jsdotlua/jest-config@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-config/-/jest-config-3.6.1-rc.2.tgz#8761156290fa7f9f7043c5a8bb3ffeacc4b1b747"
+  integrity sha512-4B4WOBV079hycGPhIc5eNC/ehvSfUmjAlxAZVWE1RoK4sdWA3bVhIz26GPT/lETRaQfDm0wMcpPE7gRleexllg==
+  dependencies:
+    "@jsdotlua/chalk" "^0.2.1"
+    "@jsdotlua/jest-each" "^3.6.1-rc.2"
+    "@jsdotlua/jest-environment-roblox" "^3.6.1-rc.2"
+    "@jsdotlua/jest-get-type" "^3.6.1-rc.2"
+    "@jsdotlua/jest-message-util" "^3.6.1-rc.2"
+    "@jsdotlua/jest-roblox-shared" "^3.6.1-rc.2"
+    "@jsdotlua/jest-types" "^3.6.1-rc.2"
+    "@jsdotlua/jest-util" "^3.6.1-rc.2"
+    "@jsdotlua/jest-validate" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+    "@jsdotlua/promise" "^3.5.0"
+    luau-regexp "^0.2.1"
+
+"@jsdotlua/jest-console@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-console/-/jest-console-3.6.1-rc.2.tgz#7dbe33c5fb5ee90d3229807cd5cf2328e1f3e3a4"
+  integrity sha512-bJOYdjt0M23KEGc212NXu+uo1I4TblQM/uPIRZJaw3sdnDuLcz8og70JtbwcWdKbxuxpGbAoh50Sz9gagqRorA==
+  dependencies:
+    "@jsdotlua/chalk" "^0.2.1"
+    "@jsdotlua/jest-each" "^3.6.1-rc.2"
+    "@jsdotlua/jest-message-util" "^3.6.1-rc.2"
+    "@jsdotlua/jest-mock" "^3.6.1-rc.2"
+    "@jsdotlua/jest-roblox-shared" "^3.6.1-rc.2"
+    "@jsdotlua/jest-types" "^3.6.1-rc.2"
+    "@jsdotlua/jest-util" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+
+"@jsdotlua/jest-core@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-core/-/jest-core-3.6.1-rc.2.tgz#ea489d85e48c9613f73fa58c4c60e3460dbe3af4"
+  integrity sha512-oQadeaoIOGHnQ0YTpNqgOm9R06wUgjUmjb8VCVAgjp1R6o5ppKD5NUX2+eUz1AqpN6CvwCaGgG1hIfD7jBGYZQ==
+  dependencies:
+    "@jsdotlua/chalk" "^0.2.1"
+    "@jsdotlua/emittery" "^3.6.1-rc.2"
+    "@jsdotlua/jest-config" "^3.6.1-rc.2"
+    "@jsdotlua/jest-console" "^3.6.1-rc.2"
+    "@jsdotlua/jest-message-util" "^3.6.1-rc.2"
+    "@jsdotlua/jest-reporters" "^3.6.1-rc.2"
+    "@jsdotlua/jest-roblox-shared" "^3.6.1-rc.2"
+    "@jsdotlua/jest-runner" "^3.6.1-rc.2"
+    "@jsdotlua/jest-runtime" "^3.6.1-rc.2"
+    "@jsdotlua/jest-snapshot" "^3.6.1-rc.2"
+    "@jsdotlua/jest-test-result" "^3.6.1-rc.2"
+    "@jsdotlua/jest-types" "^3.6.1-rc.2"
+    "@jsdotlua/jest-util" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+    "@jsdotlua/pretty-format" "^3.6.1-rc.2"
+    "@jsdotlua/promise" "^3.5.0"
+    luau-regexp "^0.2.1"
+
+"@jsdotlua/jest-diff@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-diff/-/jest-diff-3.6.1-rc.2.tgz#c6c2e6e7c904ceb6e7760db671ad8c7ce4e53405"
+  integrity sha512-xESjoxibk8welon0iDzNisxUgnI/S+bMBYbixlBbY5J/5BnjAKFGuiB0K/0r1mVSt/ijYqavBykNNL6J221Z+Q==
+  dependencies:
+    "@jsdotlua/chalk" "^0.2.1"
+    "@jsdotlua/diff-sequences" "^3.6.1-rc.2"
+    "@jsdotlua/jest-get-type" "^3.6.1-rc.2"
+    "@jsdotlua/jest-types" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+    "@jsdotlua/pretty-format" "^3.6.1-rc.2"
+
+"@jsdotlua/jest-each@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-each/-/jest-each-3.6.1-rc.2.tgz#29571a7dfacfec8559deb1af971f0ff90e2dd5ce"
+  integrity sha512-cTMujMsjphkUg8yX2q/qcgPWojM1MHPUbFpgSc+g2QHaS0hOKhyiIysj/mAPdO0qrXiW7t3wknioFCSysiK/UQ==
+  dependencies:
+    "@jsdotlua/chalk" "^0.2.1"
+    "@jsdotlua/jest-get-type" "^3.6.1-rc.2"
+    "@jsdotlua/jest-types" "^3.6.1-rc.2"
+    "@jsdotlua/jest-util" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+    "@jsdotlua/pretty-format" "^3.6.1-rc.2"
+    luau-regexp "^0.2.1"
+
+"@jsdotlua/jest-environment-roblox@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-environment-roblox/-/jest-environment-roblox-3.6.1-rc.2.tgz#1a962cd297aaf3c0e4b281a44291b6f51259255f"
+  integrity sha512-rXQBvzkVYV8MNFJqclm4UdfiQO10nisP0oHRSuURi83HJ0ZTQf8kwm+yBT5n7+PrDNFG1H8FrsQoUJiif3fdWA==
+  dependencies:
+    "@jsdotlua/jest-environment" "^3.6.1-rc.2"
+    "@jsdotlua/jest-fake-timers" "^3.6.1-rc.2"
+    "@jsdotlua/jest-mock" "^3.6.1-rc.2"
+    "@jsdotlua/jest-types" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+    "@jsdotlua/promise" "^3.5.0"
+
+"@jsdotlua/jest-environment@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-environment/-/jest-environment-3.6.1-rc.2.tgz#46413bbc2a606ebdbd03d695bc0c83352165098a"
+  integrity sha512-lnSNdr4Ny0wVs05Jf6yOmqFrIsb0MlbQBtBWgLGuhbbMf2Anqdw8Az539+7txKZaPWcol3DUNth0++QkutVOUg==
+  dependencies:
+    "@jsdotlua/jest-fake-timers" "^3.6.1-rc.2"
+    "@jsdotlua/jest-mock" "^3.6.1-rc.2"
+    "@jsdotlua/jest-types" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+
+"@jsdotlua/jest-fake-timers@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-fake-timers/-/jest-fake-timers-3.6.1-rc.2.tgz#44169117ae382f94c6de0d4cd1730c97e016237e"
+  integrity sha512-4n5VaHyp8koksaoBAVJEkYcI0iB1xy1eA3oIMcmh2aT6M3LuUKzet7qP1zgfZ405Aj+gu84X/FQeCpANdf5SKg==
+  dependencies:
+    "@jsdotlua/jest-get-type" "^3.6.1-rc.2"
+    "@jsdotlua/jest-mock" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+
+"@jsdotlua/jest-get-type@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-get-type/-/jest-get-type-3.6.1-rc.2.tgz#791667b60ff08ce2f19c3f96534f4555ab8dd168"
+  integrity sha512-kVWonfmqIitb75JpCczVMT5gWewNtGvYoYrXHTr/aWJMdht3d3suBFPzMw7R+KiFSimQ0GSf9EaPN+9ZjrysSA==
+  dependencies:
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+    luau-regexp "^0.2.1"
+
+"@jsdotlua/jest-globals@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-globals/-/jest-globals-3.6.1-rc.2.tgz#5fb9b07ae60cc13e5ba8d3b270273ef765fadcb7"
+  integrity sha512-e7ejDOUaWK/ATE25pbHZCsoEX0f27SsWmWFxfA3zJbhiEl3AJuIwlT14K664B4sY5mnzhozn0t0LcrJq/XUw8A==
+  dependencies:
+    "@jsdotlua/expect" "^3.6.1-rc.2"
+    "@jsdotlua/jest-environment" "^3.6.1-rc.2"
+    "@jsdotlua/jest-types" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+
+"@jsdotlua/jest-matcher-utils@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-matcher-utils/-/jest-matcher-utils-3.6.1-rc.2.tgz#f5610b61bc1eb7c2e187fbde5cba8821bb77c939"
+  integrity sha512-tEDwJvHjutXL/XbTHLtu56S8CmKY3c0e0nEP9yhwO1oNb3B2PkhhG9YMKvIFf1q3gv8+gd+Nqli8fduvzLyoBA==
+  dependencies:
+    "@jsdotlua/chalk" "^0.2.1"
+    "@jsdotlua/jest-diff" "^3.6.1-rc.2"
+    "@jsdotlua/jest-get-type" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+    "@jsdotlua/pretty-format" "^3.6.1-rc.2"
+    luau-regexp "^0.2.1"
+
+"@jsdotlua/jest-message-util@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-message-util/-/jest-message-util-3.6.1-rc.2.tgz#adf9dfec828c78dd0ce9cbc032c3db42a5b76f40"
+  integrity sha512-aLIlP+FnWQfcgtbIoYvrjehg9o20dU3vclCVoT5lHFh9SjOor4xC8TneEQJ759D8BbC05xNxUP3r2mywWYzEEg==
+  dependencies:
+    "@jsdotlua/chalk" "^0.2.1"
+    "@jsdotlua/jest-roblox-shared" "^3.6.1-rc.2"
+    "@jsdotlua/jest-types" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+    "@jsdotlua/pretty-format" "^3.6.1-rc.2"
+    luau-regexp "^0.2.1"
+
+"@jsdotlua/jest-mock@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-mock/-/jest-mock-3.6.1-rc.2.tgz#5bbb2af50ba340d5cbef453729c5abcfe4db5cd7"
+  integrity sha512-8U6+dEAPUanSI2zgoGfasI+foMMtGVUFbmR2XPmxodGVld7OjhCSH0wtr6+PHb5CWi2itINmgpmu64t6AyUi0Q==
+  dependencies:
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+
+"@jsdotlua/jest-reporters@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-reporters/-/jest-reporters-3.6.1-rc.2.tgz#b46b4376e0ccd0265afcc9ba4248de0278bde1af"
+  integrity sha512-OToQ7F65VonJw+BonBa5NxDFIg9zwAUoPE72a/vb2A0RhpaWykUzLpAb4CUUtwzn7ccYZLP6tHRARC7U+C0QQw==
+  dependencies:
+    "@jsdotlua/chalk" "^0.2.1"
+    "@jsdotlua/jest-console" "^3.6.1-rc.2"
+    "@jsdotlua/jest-message-util" "^3.6.1-rc.2"
+    "@jsdotlua/jest-mock" "^3.6.1-rc.2"
+    "@jsdotlua/jest-roblox-shared" "^3.6.1-rc.2"
+    "@jsdotlua/jest-test-result" "^3.6.1-rc.2"
+    "@jsdotlua/jest-types" "^3.6.1-rc.2"
+    "@jsdotlua/jest-util" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+    "@jsdotlua/path" "^3.6.1-rc.2"
+
+"@jsdotlua/jest-roblox-shared@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-roblox-shared/-/jest-roblox-shared-3.6.1-rc.2.tgz#7de8c7faab345934e6be9984fac027cadb0e0aea"
+  integrity sha512-tepynb2RZ/bnbn9isaySdcZIKvDGhmIoDUXF3jS15isgPPLHLMgnUngszajhFpoyg08OFiFzjaLHvMbd6vvCMg==
+  dependencies:
+    "@jsdotlua/jest-get-type" "^3.6.1-rc.2"
+    "@jsdotlua/jest-mock" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+
+"@jsdotlua/jest-runner@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-runner/-/jest-runner-3.6.1-rc.2.tgz#3cac209abb11fb481603120ef2093658bc862002"
+  integrity sha512-t0QacUPKGPluidqPg45m/5usbAg9Vc3nZaibKURaNCUTQMA4RABnhFGmnLNrDkYSz1U/ab/atWz3QRTTgSMiQQ==
+  dependencies:
+    "@jsdotlua/chalk" "^0.2.1"
+    "@jsdotlua/emittery" "^3.6.1-rc.2"
+    "@jsdotlua/jest-circus" "^3.6.1-rc.2"
+    "@jsdotlua/jest-console" "^3.6.1-rc.2"
+    "@jsdotlua/jest-environment" "^3.6.1-rc.2"
+    "@jsdotlua/jest-message-util" "^3.6.1-rc.2"
+    "@jsdotlua/jest-roblox-shared" "^3.6.1-rc.2"
+    "@jsdotlua/jest-runtime" "^3.6.1-rc.2"
+    "@jsdotlua/jest-test-result" "^3.6.1-rc.2"
+    "@jsdotlua/jest-types" "^3.6.1-rc.2"
+    "@jsdotlua/jest-util" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+    "@jsdotlua/pretty-format" "^3.6.1-rc.2"
+    "@jsdotlua/promise" "^3.5.0"
+    "@jsdotlua/throat" "^3.6.1-rc.2"
+
+"@jsdotlua/jest-runtime@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-runtime/-/jest-runtime-3.6.1-rc.2.tgz#96b8e569724e85b3f485de9be0d7f19ad67879a7"
+  integrity sha512-fFWab7tflW7gVT+LCY9MYyxtOFGBjXOvnnwIYb1jZU7lrBJEFRdgWSM/q95axijwxxrkpGsIAlRpgkQ4aOEWsA==
+  dependencies:
+    "@jsdotlua/emittery" "^3.6.1-rc.2"
+    "@jsdotlua/expect" "^3.6.1-rc.2"
+    "@jsdotlua/jest-fake-timers" "^3.6.1-rc.2"
+    "@jsdotlua/jest-mock" "^3.6.1-rc.2"
+    "@jsdotlua/jest-snapshot" "^3.6.1-rc.2"
+    "@jsdotlua/jest-types" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+    "@jsdotlua/promise" "^3.5.0"
+
+"@jsdotlua/jest-snapshot@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-snapshot/-/jest-snapshot-3.6.1-rc.2.tgz#43ec87995241c5b09a27e2214c27ebb13ada5a29"
+  integrity sha512-jG8qx9tENSu34Y8QLp2szb5Cv8HDZb9xUIStXHZfosXiMXAlwWgR4p07PJKINKT3zlDWuHG147hvZ9/s9FV+uQ==
+  dependencies:
+    "@jsdotlua/chalk" "^0.2.1"
+    "@jsdotlua/jest-diff" "^3.6.1-rc.2"
+    "@jsdotlua/jest-get-type" "^3.6.1-rc.2"
+    "@jsdotlua/jest-matcher-utils" "^3.6.1-rc.2"
+    "@jsdotlua/jest-roblox-shared" "^3.6.1-rc.2"
+    "@jsdotlua/jest-types" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+    "@jsdotlua/pretty-format" "^3.6.1-rc.2"
+    "@jsdotlua/promise" "^3.5.0"
+
+"@jsdotlua/jest-test-result@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-test-result/-/jest-test-result-3.6.1-rc.2.tgz#44ea407a25d9447b9092914867b79c285b90be6d"
+  integrity sha512-9iXlNI+VCtO6QF1p88gYchpaWlv0iE4OMH4NYFi1J6B5fwq6iQdgZaWEKBXvd/ZTnio8qWS16jc3HB9IwRW3eA==
+  dependencies:
+    "@jsdotlua/jest-types" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+
+"@jsdotlua/jest-types@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-types/-/jest-types-3.6.1-rc.2.tgz#a426a5c39fea01391e065a1270177745f4c27a79"
+  integrity sha512-NHl0DBHPGliXFYeYAkFg+AQjnt/OLX3ilD3qTl4K0gsW4Li7Qlj98gS+AbZVGyDbd3EK2KrKYA9BvP9dniT98A==
+  dependencies:
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+    luau-regexp "^0.2.1"
+
+"@jsdotlua/jest-util@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-util/-/jest-util-3.6.1-rc.2.tgz#dc0fd92c5ecc97d16677a6324eb4744e59875eb4"
+  integrity sha512-bT8Iz0+N99T2dLiiJ2NYbgDIrcHqvXPjVaus/GnVG+4pW3klUZaVKf+t2g8/7q5KMpgT97OW9eO6VRb6pKtssg==
+  dependencies:
+    "@jsdotlua/chalk" "^0.2.1"
+    "@jsdotlua/jest-roblox-shared" "^3.6.1-rc.2"
+    "@jsdotlua/jest-types" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+    "@jsdotlua/picomatch" "^0.4.0"
+    "@jsdotlua/promise" "^3.5.0"
+    luau-regexp "^0.2.1"
+
+"@jsdotlua/jest-validate@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest-validate/-/jest-validate-3.6.1-rc.2.tgz#0bc219bcf730780a11e1e9ab22b1cf84a2249654"
+  integrity sha512-OVRx0/1N9yKWrVw6gQgMpuEFwR6AetSZOsx3D13xdYwmLqB64zbY4x26uown1ZpoINbmYXSwYYR7kM8kZmpeRQ==
+  dependencies:
+    "@jsdotlua/chalk" "^0.2.1"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+
+"@jsdotlua/jest@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/jest/-/jest-3.6.1-rc.2.tgz#90cab43084004fde2dc710c78318a871d7949fbf"
+  integrity sha512-dIpy+0zwrOokVreqjcylx+fweycC5nfKmtgfZvCzQB6rVAEf4+n5vbMSrX0Dq4ONMebkKXmHCZm7C7N70EKgZQ==
+  dependencies:
+    "@jsdotlua/jest-core" "^3.6.1-rc.2"
 
 "@jsdotlua/luau-polyfill@^1.2.6":
   version "1.2.6"
@@ -60,10 +397,45 @@
   resolved "https://registry.yarnpkg.com/@jsdotlua/number/-/number-1.2.6.tgz#b10bb2e2ab3be26987880a8efd370bc6cd4bea40"
   integrity sha512-NNYgp17K5NFCvtqSA/3tAxdEiUz096LX0RsbOcHfWKpFk0Ld9xPb6aJQY2vAgTB/hTXTV8O055dnAzPHbmg/Jw==
 
+"@jsdotlua/path@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/path/-/path-3.6.1-rc.2.tgz#021fc12c2bf59dd37faa23ec7f1ff11893d1b5df"
+  integrity sha512-vzF4/8TyB5be+etBOQ/T7vHIxFbn3tJEMHp0H4yroyDRpAXI7+VxYmUEEDy6UyIW6QeYmqAk1TnLcH5p59DymA==
+  dependencies:
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+
+"@jsdotlua/picomatch@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/picomatch/-/picomatch-0.4.0.tgz#b87ff368c41d3af396403cd17ba04d6999ef2743"
+  integrity sha512-PkBgj3lGsujTD1bx5s+B1TtgXYxbQoGse2TWlp1uaFjQPe98llfUli7t4ZL+nGv75tDK7mneA9Y0hhRwf6Tijw==
+  dependencies:
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+    "@jsdotlua/promise" "^3.5.0"
+    luau-regexp "^0.2.1"
+
+"@jsdotlua/pretty-format@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/pretty-format/-/pretty-format-3.6.1-rc.2.tgz#1e18b817d8f4018b5e4d5a2363810267f143ff50"
+  integrity sha512-2tMmwFppYJON0jX6xnYODrjBAn2+2nUVGRKAf+j+4xCGfkHxmgjNVwxgW66gyrn7s81joRaLVsZy29php4T1ug==
+  dependencies:
+    "@jsdotlua/chalk" "^0.2.1"
+    "@jsdotlua/jest-get-type" "^3.6.1-rc.2"
+    "@jsdotlua/jest-roblox-shared" "^3.6.1-rc.2"
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+    "@jsdotlua/react-is" "^17.1.0"
+    luau-regexp "^0.2.1"
+
 "@jsdotlua/promise@^3.5.0":
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/@jsdotlua/promise/-/promise-3.5.0.tgz#d0d1d5f3f2003a2935420a79449680a01050d66c"
   integrity sha512-uMwL18+wAhzJ65O9VYEsS2+ns5J/ABcY3oTASznlKdPU+syE1LK1hTy/LqEouHiDNZ1zAvmNUA3kY7oZ4/3gOw==
+
+"@jsdotlua/react-is@^17.1.0":
+  version "17.1.0"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/react-is/-/react-is-17.1.0.tgz#8ae44f5318734b18dd962051b25385c1d1735c7e"
+  integrity sha512-n9jZjmSkc3ZBMeKSgWRdvc+VAk5iX+XjEMNt+H1g7kTiqDfqCGaIoYA697b8gZMBMM5OlFqUomjiY0bxfmP/dA==
+  dependencies:
+    "@jsdotlua/shared" "^17.1.0"
 
 "@jsdotlua/react-reconciler@^17.1.0":
   version "17.1.0"
@@ -118,6 +490,14 @@
     "@jsdotlua/es7-types" "^1.2.6"
     "@jsdotlua/number" "^1.2.6"
 
+"@jsdotlua/throat@^3.6.1-rc.2":
+  version "3.6.1-rc.2"
+  resolved "https://registry.yarnpkg.com/@jsdotlua/throat/-/throat-3.6.1-rc.2.tgz#79c19dfe1333c351dd84c8a893ea559623065eee"
+  integrity sha512-RDzj74m5tl7LfaTWdE1abpHKNRCF+GmRCUs6fSd+sThjY95ifLAYI4IvKacma/kCQyEj3agLwWItyCkmMT0CPA==
+  dependencies:
+    "@jsdotlua/luau-polyfill" "^1.2.6"
+    "@jsdotlua/promise" "^3.5.0"
+
 "@jsdotlua/timers@^1.2.6":
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/@jsdotlua/timers/-/timers-1.2.6.tgz#554fb9cde6d922b85d358cad7a474183c3547604"
@@ -129,6 +509,11 @@ commander@^11.0.0, commander@^11.1.0:
   version "11.1.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-11.1.0.tgz#62fdce76006a68e5c1ab3314dc92e800eb83d906"
   integrity sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ==
+
+luau-regexp@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/luau-regexp/-/luau-regexp-0.2.1.tgz#74a72fc0a5a00d14cbeaaca4bf307b5e609cef1e"
+  integrity sha512-7UDowKGOw7PmU1K7qecApyNvL+0m5cYpc+bYxqe6fZhP7ElFi6k96T+sOTw1YPuVxnzeVB88iDuGoKlTptJxaA==
 
 npmluau@^0.1.1:
   version "0.1.1"

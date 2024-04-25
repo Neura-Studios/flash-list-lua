@@ -77,14 +77,12 @@ ProgressiveListView.defaultProps = Object.assign({}, RecyclerListView.defaultPro
 })
 
 function ProgressiveListView:init(props)
-	print("PROGRESSIVE LIST INIT")
 	local self = self :: ProgressiveListView_private
 	self.isFirstLayoutComplete = false
 	RecyclerListView.init(self, props)
 end
 
 function ProgressiveListView:componentDidMount(): ()
-	print("PROGRESSIVE LIST MOUNTED")
 	RecyclerListView.componentDidMount(self)
 
 	local self = self :: ProgressiveListView_private

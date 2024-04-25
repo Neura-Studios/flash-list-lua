@@ -2,43 +2,30 @@
 
 set -e
 
-rm -rf roblox/node_modules
+rm -rf roblox
 
 mkdir -p roblox
 
-cp -rL node_modules/ roblox/
+cp -r src roblox/src
 
-./scripts/remove-tests.sh roblox/node_modules
+./scripts/remove-tests.sh roblox
 
-rm -rf build/wally
+wally_package=build/wally
+rm -rf $wally_package
 
-for module_path in modules/*; do
-    module_name=$(basename $module_path)
+echo Process package
 
-    original_package=node_modules/@jsdotlua/$module_name
+mkdir -p $wally_package
+cp LICENSE $wally_package/LICENSE
 
-    if [ -f $original_package/package.json ]; then
-        echo Process package $module_name
+node ./scripts/npm-to-wally.js package.json $wally_package/wally.toml roblox/wally-package.project.json
 
-        wally_package=build/wally/$module_name
-        roblox_package=roblox/node_modules/@jsdotlua/$module_name
+cp .darklua-wally.json roblox
+cp -r node_modules/.luau-aliases/* roblox
 
-        mkdir -p $wally_package
-        mkdir -p $wally_package/src
-        cp LICENSE $wally_package/LICENSE
-        cp $original_package/default.project.json $wally_package
-        node ./scripts/npm-to-wally.js $roblox_package/package.json $wally_package/wally.toml $roblox_package/wally-package.project.json --workspace-path modules
+rojo sourcemap roblox/wally-package.project.json --output roblox/sourcemap.json
 
-        cp .darklua-wally.json $roblox_package
-        cp -r roblox/node_modules/.luau-aliases/* $roblox_package
+darklua process --config roblox/.darklua-wally.json roblox/src $wally_package/src
 
-        rojo sourcemap $roblox_package/wally-package.project.json --output $roblox_package/sourcemap.json
-
-        darklua process --config $roblox_package/.darklua-wally.json $roblox_package/src $wally_package/src
-
-        wally package --project-path $wally_package --list
-
-        echo ""
-    fi
-done
-
+cp default.project.json $wally_package
+wally package --project-path $wally_package --list

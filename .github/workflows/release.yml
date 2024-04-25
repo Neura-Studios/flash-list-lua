@@ -1,15 +1,14 @@
 name: Release
 
-on:
+"on":
   workflow_dispatch:
     inputs:
       release_tag:
-        description: "The version to release starting with `v`"
+        description: The version to release starting with `v`
         required: true
         type: string
-
       release_ref:
-        description: "The branch, tag or SHA to checkout (default to latest)"
+        description: The branch, tag or SHA to checkout (default to latest)
         default: ""
         type: string
 
@@ -20,18 +19,18 @@ jobs:
   publish-package:
     name: Publish package
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enable corepack
+        run: corepack enable
+
       - uses: actions/setup-node@v3
         with:
-          node-version: "latest"
-          cache: "yarn"
-          cache-dependency-path: "yarn.lock"
-
-      - name: Update yarn
-        run: yarn set version stable
+          node-version: latest
+          registry-url: https://registry.npmjs.org
+          cache: yarn
+          cache-dependency-path: yarn.lock
 
       - name: Install packages
         run: yarn install --immutable
@@ -40,13 +39,41 @@ jobs:
         run: yarn run prepare
 
       - name: Authenticate yarn
-        run: |
+        run: |-
           yarn config set npmAlwaysAuth true
-          yarn config set npmScopes.jsdotlua.npmAuthToken $NPM_AUTH_TOKEN
+          yarn config set npmAuthToken $NPM_AUTH_TOKEN
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - run: yarn workspaces foreach --all --no-private npm publish --access public
+      - name: Publish to npm
+        run: yarn npm publish --access public
+
+  create-release:
+    needs: publish-package
+    name: Create release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create tag
+        run: |
+          git fetch --tags --no-recurse-submodules
+          if [ ! $(git tag -l ${{ inputs.release_tag }}) ]; then
+            git tag ${{ inputs.release_tag }}
+            git push origin ${{ inputs.release_tag }}
+          fi
+
+      - name: Create release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ inputs.release_tag }}
+          name: ${{ inputs.release_tag }}
+          draft: false
 
   publish-wally-package:
     needs: publish-package
@@ -80,96 +107,34 @@ jobs:
         run: yarn run build-assets
 
       - name: Login to wally
-        run: wally login --project-path build/wally/shared --token ${{ secrets.WALLY_ACCESS_TOKEN }}
+        run: wally login --project-path build/wally --token ${{ secrets.WALLY_ACCESS_TOKEN }}
 
-      - name: Publish shared to wally
-        run: wally publish --project-path build/wally/shared
-
-      - name: Publish scheduler to wally
-        run: wally publish --project-path build/wally/scheduler
-
-      - name: Publish react-is to wally
-        run: wally publish --project-path build/wally/react-is
-
-      - name: Publish react to wally
-        run: wally publish --project-path build/wally/react
-
-      - name: Publish react-cache to wally
-        run: wally publish --project-path build/wally/react-cache
-
-      - name: Publish react-reconciler to wally
-        run: wally publish --project-path build/wally/react-reconciler
-
-      - name: Publish react-roblox to wally
-        run: wally publish --project-path build/wally/react-roblox
-
-      - name: Publish react-test-renderer to wally
-        run: wally publish --project-path build/wally/react-test-renderer
-
-      - name: Publish react-shallow-renderer to wally
-        run: wally publish --project-path build/wally/react-shallow-renderer
-
-      - name: Publish roact-compat to wally
-        run: wally publish --project-path build/wally/roact-compat
-
-      - name: Publish react-devtools-shared to wally
-        run: wally publish --project-path build/wally/react-devtools-shared
-
-      - name: Publish react-debug-tools to wally
-        run: wally publish --project-path build/wally/react-debug-tools
-
-      - name: Publish react-devtools-extensions to wally
-        run: wally publish --project-path build/wally/react-devtools-extensions
-
-
-  create-release:
-    needs: publish-package
-
-    name: Create release
-    runs-on: ubuntu-latest
-
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Create tag
-        run: |
-          git fetch --tags --no-recurse-submodules
-          if [ ! $(git tag -l ${{ inputs.release_tag }}) ]; then
-            git tag ${{ inputs.release_tag }}
-            git push origin ${{ inputs.release_tag }}
-          fi
-
-      - name: Create release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ inputs.release_tag }}
-          name: ${{ inputs.release_tag }}
-          draft: false
+      - name: Publish to wally
+        run: wally publish --project-path build/wally
 
   build-assets:
     needs: create-release
-
     name: Add assets
     runs-on: ubuntu-latest
-
     strategy:
       fail-fast: false
       matrix:
         include:
-          - artifact-name: react-lua.rbxm
-            path: build/react-lua.rbxm
+          - artifact-name: flash-list.lua
+            path: build/flash-list.lua
+            asset-type: text/plain
+
+          - artifact-name: flash-list-dev.lua
+            path: build/debug/flash-list.lua
+            asset-type: text/plain
+
+          - artifact-name: flash-list.rbxm
+            path: build/flash-list.rbxm
             asset-type: application/octet-stream
 
-          - artifact-name: react-lua-dev.rbxm
-            path: build/debug/react-lua.rbxm
+          - artifact-name: flash-list-dev.rbxm
+            path: build/debug/flash-list.rbxm
             asset-type: application/octet-stream
-
     steps:
       - uses: actions/checkout@v4
 
@@ -177,14 +142,15 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Enable corepack
+        run: corepack enable
+
       - uses: actions/setup-node@v3
         with:
-          node-version: "latest"
-          cache: "yarn"
-          cache-dependency-path: "yarn.lock"
-
-      - name: Update yarn
-        run: yarn set version stable
+          node-version: latest
+          registry-url: https://registry.npmjs.org
+          cache: yarn
+          cache-dependency-path: yarn.lock
 
       - name: Install packages
         run: yarn install --immutable
@@ -193,7 +159,7 @@ jobs:
         run: yarn run prepare
 
       - name: Build assets
-        run: yarn run build-assets
+        run: yarn run build
 
       - name: Upload asset
         uses: actions/upload-artifact@v3

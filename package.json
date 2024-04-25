@@ -1,12 +1,19 @@
 {
   "name": "@neura-studios/flash-list",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "A better list for React Lua",
   "scripts": {
+    "build": "sh ./scripts/build.sh",
+    "clean": "rm -rf node_modules build temp",
+    "format": "stylua .",
+    "lint": "sh ./scripts/analyze.sh && selene src",
+    "lint:luau": "sh ./scripts/analyze.sh",
+    "lint:selene": "selene src",
     "prepare": "npmluau",
-    "build-assets": "sh ./scripts/build-assets.sh",
-    "lint": "selene src",
-    "format": "stylua src",
-    "style-check": "stylua src --check",
-    "clean": "rm -rf roblox build node_modules"
+    "style-check": "stylua . --check",
+    "test:roblox": "sh ./scripts/roblox-test.sh",
+    "verify-pack": "yarn pack --dry-run"
   },
   "dependencies": {
     "@jsdotlua/luau-polyfill": "^1.2.6",
@@ -15,6 +22,8 @@
   },
   "devDependencies": {
     "@jsdotlua/react-roblox": "^17.1.0",
+    "@jsdotlua/jest": "^3.6.1-rc.2",
+    "@jsdotlua/jest-globals": "^3.6.1-rc.2",
     "commander": "^11.1.0",
     "npmluau": "^0.1.1"
   }

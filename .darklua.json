@@ -1,11 +1,6 @@
 {
   "process": [
     {
-      "rule": "inject_global_value",
-      "identifier": "__DEV__",
-      "value": false
-    },
-    {
       "rule": "convert_require",
       "current": {
         "name": "path",
@@ -15,9 +10,14 @@
       },
       "target": {
         "name": "roblox",
-        "rojo_sourcemap": "./sourcemap.json",
-        "indexing_style": "wait_for_child"
+        "indexing_style": "wait_for_child",
+        "rojo_sourcemap": "sourcemap.json"
       }
+    },
+    {
+      "rule": "inject_global_value",
+      "identifier": "__DEV__",
+      "value": false
     },
     "compute_expression",
     "remove_unused_if_branch",
