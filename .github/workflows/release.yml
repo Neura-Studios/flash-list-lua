@@ -46,7 +46,7 @@ jobs:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish to npm
-        run: yarn npm publish --access public
+        run: yarn publish --access public
 
   create-release:
     needs: publish-package
