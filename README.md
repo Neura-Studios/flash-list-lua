@@ -10,7 +10,7 @@
 <a href="https://neura-studios.github.io/flash-list-lua/fundamentals/performant-components">Writing performant components</a> •
 <a href="https://neura-studios.github.io/flash-list-lua/known-issues">Known Issues</a>
 
-**Fast & performant React Native list. No more blank cells.**
+**Fast & performant React Roblox list. No more blank cells.**
 
 Swap from FlatList in seconds. Get instant performance.
 
