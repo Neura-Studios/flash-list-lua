@@ -14,8 +14,6 @@
 /*.txt
 /*.tgz
 
-*.d.lua
-*.d.luau
 *.spec.lua
 *.spec.luau
 *.test.lua
