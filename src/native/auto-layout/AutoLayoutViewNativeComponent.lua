@@ -15,7 +15,11 @@ local AutoLayoutViewNativeComponent = React.forwardRef(function(props: any, ref)
 		BackgroundTransparency = 1,
 	}, props)
 
-	return React.createElement("Frame", Object.assign({}, props, { ref = ref }), props.children)
+	return React.createElement(
+		"Frame",
+		Object.assign({}, props, { ref = ref }),
+		props.children
+	)
 end)
 
 AutoLayoutViewNativeComponent.displayName = "CellContainer"

@@ -11,7 +11,7 @@
     "lint:luau": "sh ./scripts/analyze.sh",
     "lint:selene": "selene src",
     "prepare": "npmluau",
-    "style-check": "stylua . --check",
+    "style-check": "stylua src/ --check",
     "test:roblox": "sh ./scripts/roblox-test.sh",
     "verify-pack": "yarn pack --dry-run"
   },
