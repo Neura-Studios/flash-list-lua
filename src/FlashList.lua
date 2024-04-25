@@ -63,6 +63,8 @@ type FlashListProps<TItem> = FlashListProps.FlashListProps<TItem>
 type FlashListState<TItem> = FlashListProps.FlashListState<TItem>
 type RenderTarget = FlashListProps.RenderTarget
 
+local View = nil :: any
+
 type StickyProps = StickyContainerProps & {
 	children: any?,
 }
