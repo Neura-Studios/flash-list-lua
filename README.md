@@ -23,6 +23,7 @@ FlashList Lua supports installation via NPM or Wally.
 ### NPM
 
 `npm add @neura-studios/flash-list`
+
 `yarn add @neura-studios/flash-list`
 
 ### Wally
