@@ -4,7 +4,7 @@
   "license": "MIT",
   "description": "A better list for React Lua",
   "scripts": {
-    "build": "sh ./scripts/build.sh",
+    "build": "sh ./scripts/build-assets.sh",
     "clean": "rm -rf node_modules build temp",
     "format": "stylua .",
     "lint": "sh ./scripts/analyze.sh && selene src",
