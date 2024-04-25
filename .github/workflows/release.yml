@@ -38,15 +38,20 @@ jobs:
       - name: Run npmluau
         run: yarn run prepare
 
-      - name: Authenticate yarn
-        run: |-
-          yarn config set npmAlwaysAuth true
-          yarn config set npmAuthToken $NPM_AUTH_TOKEN
-        env:
-          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # - name: Authenticate yarn
+      #   run: |-
+      #     yarn config set npmAlwaysAuth true
+      #     yarn config set npmAuthToken $NPM_AUTH_TOKEN
+      #   env:
+      #     NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # - name: Publish to npm
+      #   run: npm publish --access public
 
       - name: Publish to npm
-        run: npm publish --access public
+        uses: JS-DevTools/npm-publish@v3
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
 
   create-release:
     needs: publish-package
