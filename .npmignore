@@ -1,28 +1,29 @@
 /.*
-/bin
-/Packages
-**/.robloxrc
+/scripts
+/docs
+/site
 
-/.github/
-/.vscode/
-
-/roblox
 /build
+/temp
 
 /*.json
-/*.toml
+/*.json5
 /*.yml
+/*.toml
 /*.md
+/*.txt
 /*.tgz
 
-/globalTypes.d.lua
-**/sourcemap.json
-**/*.project.json
-
+*.d.lua
+*.d.luau
+*.spec.lua
+*.spec.luau
+*.test.lua
+*.test.luau
+**/tests
 **/__tests__
-**/*.test.lua
-**/*.spec.lua
-**/jest.config.lua
+jest.config.lua
+jest.config.luau
 
 **/*.rbxl
 **/*.rbxlx
