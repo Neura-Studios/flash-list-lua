@@ -246,7 +246,7 @@ export type RecyclerListView = {
 	getSnapshotBeforeUpdate: (
 		props: RecyclerListViewProps,
 		state: RecyclerListViewState
-	) -> any,
+	) -> (),
 
 	defaultProps: RecyclerListViewProps?,
 
@@ -574,21 +574,30 @@ function RecyclerListView:init(props)
 	end
 end
 
-function RecyclerListView:componentDidUpdate(): ()
-	self:_assertDependencyPresence(self.props)
-	self:_checkAndChangeLayouts(self.props)
-	if not self.props.onVisibleIndicesChanged then
-		self._virtualRenderer:removeVisibleItemsListener()
-	end
-	if self.props.onVisibleIndexesChanged then
-		error(
-			CustomError.new(RecyclerListViewExceptions.usingOldVisibleIndexesChangedParam)
-		)
-	end
-	if self.props.onVisibleIndicesChanged then
-		self._virtualRenderer:attachVisibleItemsListener(
-			self.props.onVisibleIndicesChanged
-		)
+function RecyclerListView:componentDidUpdate(prevProps): ()
+	do
+		local newProps = self.props
+		self.props = prevProps
+
+		self:_assertDependencyPresence(newProps)
+		self:_checkAndChangeLayouts(newProps)
+		if not newProps.onVisibleIndicesChanged then
+			self._virtualRenderer:removeVisibleItemsListener()
+		end
+		if newProps.onVisibleIndexesChanged then
+			error(
+				CustomError.new(
+					RecyclerListViewExceptions.usingOldVisibleIndexesChangedParam
+				)
+			)
+		end
+		if newProps.onVisibleIndicesChanged then
+			self._virtualRenderer:attachVisibleItemsListener(
+				newProps.onVisibleIndicesChanged
+			)
+		end
+
+		self.props = newProps
 	end
 
 	self:_processInitialOffset()

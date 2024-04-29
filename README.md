@@ -79,3 +79,11 @@ To avoid common pitfalls, you can also follow these steps for migrating from `Fl
 3. Check your [`renderItem`](https://neura-studios.github.io/flash-list-lua/docs/usage/#renderitem) hierarchy for components that make use of `useState` and verify whether that state would need to be reset if a different item is passed to that component (see [Recycling](https://neura-studios.github.io/flash-list-lua/docs/recycling))
 4. If your list has heterogenous views, pass their types to `FlashList` using [`getItemType`](https://neura-studios.github.io/flash-list-lua/docs/usage/#getitemtype) prop to improve performance.
 5. Do not test performance with React dev mode on. Make sure you’re in release mode. `FlashList` can appear slower while in dev mode due to a small render buffer.
+
+## Unsupported Features
+
+Not all features from FlashList or `recyclerlistview` are ported in this translation. Some notable exclusions are:
+
+- `RefreshControl` currently has no implementation in Axon. That's currently blocking refresh gesture support in this package.
+- Item animators aren't currently supported because there's no clear path for how to animate item layouts and entry/exist animations in Roblox. Could likely be revisited later if we come across a need for this.
+- Inverted lists aren't currently supported because Roblox lacks the matrix transforms used in upstream to make it work and I don't have the time to work out an alternative path. We don't have a use case for this.

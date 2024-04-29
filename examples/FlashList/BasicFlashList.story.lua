@@ -6,19 +6,11 @@ local ReactRoblox = require("@pkg/@jsdotlua/react-roblox")
 local FlashList = require("../../src")
 
 local e = React.createElement
+local useState = React.useState
+local useEffect = React.useEffect
 local useMemo = React.useMemo
-local useRef = React.useRef
-
-local function generateArray(n: number)
-	local arr = table.create(n)
-	for i = 1, n do
-		arr[i] = i
-	end
-	return arr
-end
 
 local ITEM_COUNT = 500
-local ITEMS = generateArray(ITEM_COUNT)
 
 local function ItemRenderer(props)
 	local data = props.data
@@ -30,13 +22,40 @@ local function ItemRenderer(props)
 		Size = UDim2.new(1, 0, 0, 160),
 		BackgroundColor3 = backgroundColor,
 		BorderSizePixel = 0,
-		Text = `Data: {data}`,
+		Text = `Item index: {index}\nCurrent time: {data.timeSinceMount}`,
 		TextSize = 24,
 		FontFace = Font.fromEnum(Enum.Font.BuilderSansBold),
 	}, {})
 end
 
 local function StoryComponent()
+	local data, setData = useState({})
+
+	local timeAtMount = useMemo(function()
+		return os.time()
+	end, {})
+
+	useEffect(function()
+		local isMounted = true
+		task.spawn(function()
+			while isMounted do
+				local arr = table.create(ITEM_COUNT)
+				for i = 1, ITEM_COUNT do
+					arr[i] = {
+						timeSinceMount = os.time() - timeAtMount,
+					}
+				end
+
+				setData(arr)
+				task.wait(1)
+			end
+		end)
+
+		return function()
+			isMounted = false
+		end
+	end, { timeAtMount })
+
 	return e("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
@@ -44,7 +63,7 @@ local function StoryComponent()
 		BackgroundTransparency = 1,
 	}, {
 		List = e(FlashList.FlashList, {
-			data = ITEMS,
+			data = data,
 			estimatedItemSize = 160,
 			numColumns = 2,
 			renderItem = function(data)
@@ -53,8 +72,8 @@ local function StoryComponent()
 					index = data.index,
 				})
 			end,
-			keyExtractor = function(item)
-				return `Item_{item}`
+			keyExtractor = function(_item, index)
+				return `Item_{index}`
 			end,
 		}),
 	})

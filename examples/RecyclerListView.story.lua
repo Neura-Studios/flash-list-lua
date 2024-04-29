@@ -7,6 +7,9 @@ local RecyclerListView = require("../src/recyclerlistview")
 
 local e = React.createElement
 local useMemo = React.useMemo
+local useEffect = React.useEffect
+local useState = React.useState
+
 local ViewTypes = {
 	FULL = 0,
 	HALF_LEFT = 1,
@@ -50,6 +53,23 @@ end
 local function StoryComponent()
 	local width = 200
 
+	local counter, setCounter = useState(1)
+	useEffect(function()
+		local isMounted = true
+		task.spawn(function()
+			while isMounted do
+				task.wait(1)
+				setCounter(function(prev)
+					return prev + 1
+				end)
+			end
+		end)
+
+		return function()
+			isMounted = false
+		end
+	end, {})
+
 	-- Create the data provider and provide method which takes in two rows of
 	-- data and return if those two are different or not.
 	local dataProvider = useMemo(function()
@@ -57,8 +77,8 @@ local function StoryComponent()
 			return r1 ~= r2
 		end)
 
-		return dataProvider:cloneWithRows(generateArray(1000))
-	end, {})
+		return dataProvider:cloneWithRows(generateArray(counter))
+	end, {counter})
 
 	-- Create the layout provider
 	-- First method: Given an index return the type of item e.g ListItemType1,
@@ -103,7 +123,7 @@ local function StoryComponent()
 		BackgroundColor3 = Color3.new(0.6, 0.6, 0.6),
 		BackgroundTransparency = 1,
 	}, {
-		List = e(RecyclerListView.ProgressiveListView, {
+		List = e(RecyclerListView.RecyclerListView, {
 			layoutProvider = layoutProvider,
 			dataProvider = dataProvider,
 			scrollViewProps = {
