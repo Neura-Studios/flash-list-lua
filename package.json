@@ -1,6 +1,6 @@
 {
   "name": "@neura-studios/flash-list",
-  "version": "1.0.0-rc.1.1",
+  "version": "1.0.0-rc.2",
   "license": "MIT",
   "description": "A better list for React Lua",
   "scripts": {
