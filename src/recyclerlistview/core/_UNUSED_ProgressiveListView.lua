@@ -121,7 +121,7 @@ function ProgressiveListView:updateRenderAheadProgressively(newVal: number): ()
 	end
 
 	-- NOTE: The list might be running in a storybook plugin. In which case, mock the update loop
-	if RunService:IsStudio() and RunService:IsEdit() then
+	if RunService:IsStudio() and not RunService:IsRunning() then
 		task.delay(0, updateLoop)
 	else
 		self.renderAheadUpdateConnection = RunService.RenderStepped:Once(updateLoop)
