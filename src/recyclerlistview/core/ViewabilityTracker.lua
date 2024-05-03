@@ -285,10 +285,11 @@ function ViewabilityTracker_private:updateOffset(
 	if self._currentOffset ~= correctedOffset then
 		self._currentOffset = correctedOffset
 		self:_updateTrackingWindows(offset, windowCorrection)
-		local startIndex = 0
+		local startIndex = 1
 		if #self._visibleIndexes > 0 then
 			startIndex = self._visibleIndexes[1]
 		end
+
 		self:_fitAndUpdate(startIndex)
 	end
 end
@@ -309,8 +310,7 @@ function ViewabilityTracker_private:findFirstLogicallyVisibleIndex(): number
 	local relevantIndex = self:_findFirstVisibleIndexUsingBS(0.001)
 	local result = relevantIndex
 
-	local i = relevantIndex
-	while i >= 0 do
+	for i = relevantIndex, 1, -1 do
 		if self._isHorizontal then
 			if self._layouts[relevantIndex].x ~= self._layouts[i].x then
 				break
@@ -324,7 +324,6 @@ function ViewabilityTracker_private:findFirstLogicallyVisibleIndex(): number
 				result = i
 			end
 		end
-		i -= 1
 	end
 
 	return result
@@ -401,7 +400,8 @@ function ViewabilityTracker_private:_fitIndexes(
 	local count = #self._layouts
 	local relevantDim: Range = { start = 0, ["end"] = 0 }
 	local atLeastOneLocated = false
-	if startIndex < count then
+
+	if startIndex <= count then
 		if not isReverse then
 			for i = startIndex, count do
 				if

@@ -1,5 +1,7 @@
 -- Based on: https://github.com/Flipkart/recyclerlistview/blob/master/docs/guides/samplecode/web/Sample1.js
 
+_G.__DEV__ = true
+
 local React = require("@pkg/@jsdotlua/react")
 local ReactRoblox = require("@pkg/@jsdotlua/react-roblox")
 
@@ -10,7 +12,7 @@ local useState = React.useState
 local useEffect = React.useEffect
 local useMemo = React.useMemo
 
-local ITEM_COUNT = 500
+local ITEM_COUNT = 10_000
 
 local function ItemRenderer(props)
 	local data = props.data
@@ -81,7 +83,9 @@ end
 
 return function(target: GuiObject)
 	local root = ReactRoblox.createRoot(target)
-	root:render(e(StoryComponent, {}))
+	root:render(e(React.StrictMode, {}, {
+		Story = e(StoryComponent, {}),
+	}))
 
 	return function()
 		root:unmount()

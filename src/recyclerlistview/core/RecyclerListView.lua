@@ -937,12 +937,12 @@ function RecyclerListView:_checkAndChangeLayouts(
 			)
 			self:_refreshViewability()
 		end
-	elseif self._relayoutReqIndex >= 0 then
+	elseif self._relayoutReqIndex >= 1 then
 		local layoutManager = self._virtualRenderer:getLayoutManager()
 		if layoutManager then
 			local dataProviderSize = newProps.dataProvider:getSize()
 			layoutManager:relayoutFromIndex(
-				math.min(math.max(dataProviderSize - 1, 0), self._relayoutReqIndex),
+				math.min(math.max(dataProviderSize, 1), self._relayoutReqIndex),
 				dataProviderSize
 			)
 			self._relayoutReqIndex = -1

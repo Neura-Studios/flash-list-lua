@@ -53,7 +53,7 @@ end
 local function StoryComponent()
 	local width = 200
 
-	local counter, setCounter = useState(1)
+	local counter, setCounter = useState(0)
 	useEffect(function()
 		local isMounted = true
 		task.spawn(function()
