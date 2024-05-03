@@ -407,6 +407,7 @@ function StickyContainer:render()
 	return React.createElement("Frame", self.props.style or {
 		Size = UDim2.fromScale(1, 1),
 		BackgroundTransparency = 1,
+		ClipsDescendants = true,
 	}, recycler, self.props.stickyHeaderIndices and React.createElement(StickyHeader, {
 		ref = function(stickyHeaderRef: any)
 			return self._getStickyHeaderRef(stickyHeaderRef)

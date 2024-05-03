@@ -1,6 +1,7 @@
 -- ROBLOX upstream: https://github.com/Flipkart/recyclerlistview/blob/1d310dffc80d63e4303bf1213d2f6b0ce498c33a/core/sticky/StickyObject.tsx
 
 local LuauPolyfill = require("@pkg/@jsdotlua/luau-polyfill")
+local console = LuauPolyfill.console
 local Object = LuauPolyfill.Object
 type Array<T> = LuauPolyfill.Array<T>
 type Object = LuauPolyfill.Object
@@ -22,6 +23,7 @@ local RecyclerListViewExceptions = require("../exceptions/RecyclerListViewExcept
 local CustomError = require("../exceptions/CustomError")
 local ViewabilityTracker = require("../ViewabilityTracker")
 type WindowCorrection = ViewabilityTracker.WindowCorrection
+local BinarySearch = require("../../utils/BinarySearch")
 
 local StickyType = table.freeze({ HEADER = 0, FOOTER = 1 })
 export type StickyType = number
@@ -54,6 +56,8 @@ export type StickyObjectProps = {
 		extendState: (Object | Array<unknown>)?
 	) -> React.Node | nil)?,
 	getWindowCorrection: (() -> WindowCorrection)?,
+
+	objectType: "header" | "footer",
 }
 
 export type StickyObject = {
@@ -248,7 +252,7 @@ end
 
 function StickyObject:render(): React.Node
 	local noRenderContainerProps = Object.assign({
-		Size = UDim2.fromOffset(0, self._scrollableHeight or 0),
+		Size = UDim2.new(1, 0, 0, self._scrollableHeight or 0),
 	})
 
 	local verticalOffset = self._stickyViewOffset
@@ -258,6 +262,9 @@ function StickyObject:render(): React.Node
 
 	local contentProps = Object.assign({
 		Position = UDim2.fromOffset(0, verticalOffset),
+		BackgroundTransparency = 1,
+		-- The higher the index of the object, the higher the ZIndex.
+		ZIndex = self.currentStickyIndex,
 	}, if not self.props.renderContainer then noRenderContainerProps else {})
 
 	local content = React.createElement(
@@ -361,11 +368,39 @@ function StickyObject:onScroll(offsetY: number): ()
 end
 
 function StickyObject:hasReachedBoundary(offsetY: number, windowBound: number?): boolean
-	error("not implemented abstract method")
+	-- ROBLOX deviation: We can't support React component inheritance, so we have to inline the methods here.
+	if self.props.objectType == "header" then
+		return false
+	elseif self.props.objectType == "footer" then
+		if windowBound ~= nil then
+			local endReachedMargin = math.round(offsetY - windowBound)
+			return endReachedMargin >= 0
+		end
+		return false
+	else
+		error(`Invalid sticky object type: {self.props.objectType}`)
+	end
 end
 
 function StickyObject:initStickyParams(): ()
-	error("not implemented abstract method")
+	-- ROBLOX deviation: We can't support React component inheritance, so we have to inline the methods here.
+	if self.props.objectType == "header" then
+		self.stickyType = StickyType.HEADER
+		self.stickyTypeMultiplier = 1
+		self.containerPosition =
+			{ top = self:getWindowCorrection(self.props).startCorrection }
+		-- Kept as true contrary to as in StickyFooter because in case of initialOffset not given, onScroll isn't called and boundaryProcessing isn't done.
+		-- Default behaviour in that case will be sticky header hidden.
+		self.bounceScrolling = true
+	elseif self.props.objectType == "footer" then
+		self.stickyType = StickyType.FOOTER
+		self.stickyTypeMultiplier = -1
+		self.containerPosition =
+			{ bottom = self:getWindowCorrection(self.props).endCorrection }
+		self.bounceScrolling = false
+	else
+		error(`Invalid sticky object type: {self.props.objectType}`)
+	end
 end
 
 function StickyObject:calculateVisibleStickyIndex(
@@ -375,19 +410,88 @@ function StickyObject:calculateVisibleStickyIndex(
 	offsetY: number,
 	windowBound: number?
 ): ()
-	error("not implemented abstract method")
+	-- ROBLOX deviation: We can't support React component inheritance, so we have to inline the methods here.
+	if self.props.objectType == "header" then
+		if stickyIndices and smallestVisibleIndex ~= nil then
+			self.bounceScrolling = self:hasReachedBoundary(offsetY, windowBound)
+			if smallestVisibleIndex < stickyIndices[1] or self.bounceScrolling then
+				self.stickyVisibility = false
+			else
+				self.stickyVisibility = true
+				local valueAndIndex = BinarySearch.findValueSmallerThanTarget(
+					stickyIndices,
+					smallestVisibleIndex
+				)
+				if valueAndIndex then
+					self.currentIndex = valueAndIndex.index
+					self.currentStickyIndex = valueAndIndex.value
+				else
+					console.log("Header sticky index calculation gone wrong.")
+				end
+			end
+		end
+	elseif self.props.objectType == "footer" then
+		if stickyIndices and largestVisibleIndex ~= 1 then
+			self.bounceScrolling = self:hasReachedBoundary(offsetY, windowBound)
+			if
+				largestVisibleIndex > stickyIndices[#stickyIndices]
+				or self.bounceScrolling
+			then
+				self.stickyVisibility = false
+				--This is needed only in when the window is non-scrollable.
+				if (self :: any).props.alwaysStickyFooter and offsetY == 0 then
+					self.stickyVisibility = true
+				end
+			else
+				self.stickyVisibility = true
+				local valueAndIndex = BinarySearch.findValueLargerThanTarget(
+					stickyIndices,
+					largestVisibleIndex
+				)
+				if valueAndIndex then
+					self.currentIndex = valueAndIndex.index
+					self.currentStickyIndex = valueAndIndex.value
+				else
+					console.log("Footer sticky index calculation gone wrong.")
+				end
+			end
+		end
+	else
+		error(`Invalid sticky object type: {self.props.objectType}`)
+	end
 end
 
-function StickyObject:getNextYd(_nextY: number, nextHeight: number): number
-	error("not implemented abstract method")
+function StickyObject:getNextYd(nextY: number, nextHeight: number): number
+	-- ROBLOX deviation: We can't support React component inheritance, so we have to inline the methods here.
+	if self.props.objectType == "header" then
+		return nextY
+	elseif self.props.objectType == "footer" then
+		return -1 * (nextY + nextHeight)
+	else
+		error(`Invalid sticky object type: {self.props.objectType}`)
+	end
 end
 
 function StickyObject:getCurrentYd(currentY: number, currentHeight: number): number
-	error("not implemented abstract method")
+	-- ROBLOX deviation: We can't support React component inheritance, so we have to inline the methods here.
+	if self.props.objectType == "header" then
+		return currentY
+	elseif self.props.objectType == "footer" then
+		return -1 * (currentY + currentHeight)
+	else
+		error(`Invalid sticky object type: {self.props.objectType}`)
+	end
 end
 
 function StickyObject:getScrollY(offsetY: number, scrollableHeight: number?): number | nil
-	error("not implemented abstract method")
+	-- ROBLOX deviation: We can't support React component inheritance, so we have to inline the methods here.
+	if self.props.objectType == "header" then
+		return offsetY
+	elseif self.props.objectType == "footer" then
+		return if scrollableHeight then -1 * (offsetY + scrollableHeight) else nil
+	else
+		error(`Invalid sticky object type: {self.props.objectType}`)
+	end
 end
 
 function StickyObject:stickyViewVisible(
