@@ -43,7 +43,7 @@ local function Row(props: {
 		lastName: string,
 	},
 })
-	local fullName = props.item.firstName .. " " .. props.item.lastName
+	local fullName = `{props.item.firstName} {props.item.lastName}`
 	local thumbnailUrl = `rbxthumb://type=AvatarHeadShot&id={props.item.userId}&w=48&h=48`
 
 	return e("Frame", {

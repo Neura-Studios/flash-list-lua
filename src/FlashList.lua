@@ -735,6 +735,9 @@ function FlashList:render()
 		then PlatformConfig.defaultDrawDistance
 		else drawDistance
 
+	-- Remove some props so they are not passed to the RecyclerListView
+	self.props.onEndReachedThreshold = nil
+
 	local listViewProps = Object.assign({}, self.props, {
 		ref = self.recyclerRef,
 		layoutProvider = self.state.layoutProvider,
