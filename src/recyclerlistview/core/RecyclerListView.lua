@@ -1,7 +1,5 @@
 -- ROBLOX upstream: https://github.com/Flipkart/recyclerlistview/blob/1d310dffc80d63e4303bf1213d2f6b0ce498c33a/core/RecyclerListView.tsx
 
-local RunService = game:GetService("RunService")
-
 local LuauPolyfill = require("@pkg/@jsdotlua/luau-polyfill")
 local Object = LuauPolyfill.Object
 local console = LuauPolyfill.console
@@ -1164,12 +1162,8 @@ function RecyclerListView:updateRenderAheadProgressively(newVal: number): ()
 		end
 	end
 
-	-- NOTE: The list might be running in a storybook plugin. In which case, mock the update loop
-	if RunService:IsStudio() and not RunService:IsRunning() then
-		task.delay(0, updateLoop)
-	else
-		self.renderAheadUpdateConnection = RunService.RenderStepped:Once(updateLoop)
-	end
+	-- self.renderAheadUpdateConnection = RunService.RenderStepped:Once(updateLoop)
+	task.spawn(updateLoop)
 end
 
 function RecyclerListView:incrementRenderAhead(): ()
@@ -1205,12 +1199,8 @@ function RecyclerListView:performFinalUpdate(): ()
 		end
 	end
 
-	-- NOTE: The list might be running in a storybook plugin. In which case, mock the update loop
-	if RunService:IsStudio() and not RunService:IsRunning() then
-		task.delay(0, updateLoop)
-	else
-		self.renderAheadUpdateConnection = RunService.RenderStepped:Once(updateLoop)
-	end
+	-- self.renderAheadUpdateConnection = RunService.RenderStepped:Once(updateLoop)
+	task.spawn(updateLoop)
 end
 
 function RecyclerListView:cancelRenderAheadUpdate(): ()
