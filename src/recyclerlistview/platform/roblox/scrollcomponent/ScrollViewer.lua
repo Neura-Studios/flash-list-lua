@@ -2,6 +2,8 @@
 
 --!nolint LocalShadow
 
+local RunService = game:GetService("RunService")
+
 local LuauPolyfill = require("@pkg/@jsdotlua/luau-polyfill")
 local Object = LuauPolyfill.Object
 type Error = LuauPolyfill.Error
@@ -180,7 +182,7 @@ function ScrollViewer:scrollTo(
 			if self.props.horizontal then scrollInput.x else scrollInput.y
 		)
 	else
-		self:_setRelevantOffset(
+		self._setRelevantOffset(
 			if self.props.horizontal then scrollInput.x else scrollInput.y
 		)
 	end
@@ -219,26 +221,30 @@ function ScrollViewer:render()
 end
 
 function ScrollViewer:_doAnimatedScroll(offset: number): ()
-	local start = self:_getRelevantOffset()
+	local start = self._getRelevantOffset()
 	if offset > start then
 		start = math.max(offset - 800, start)
 	else
 		start = math.min(offset + 800, start)
 	end
 	local change = offset - start
-	local increment = 20
-	local duration = 200
-	local function animateScroll(elapsedTime_: number)
-		elapsedTime_ += increment
-		local position = self:_easeInOut(elapsedTime_, start, change, duration)
-		self:_setRelevantOffset(position)
-		if elapsedTime_ < duration then
-			task.delay(increment / 1000, function()
-				return animateScroll(elapsedTime_)
-			end)
-		end
+
+	-- ROBLOX deviation: Use RunService loop for smoother animation
+	if self._renderSteppedConnection then
+		self._renderSteppedConnection:Disconnect()
 	end
-	animateScroll(0)
+
+	local DURATION = 0.2
+	local elapsedTime = 0
+
+	self._renderSteppedConnection = RunService.RenderStepped:Connect(function(dt: number)
+		elapsedTime += dt
+		local position = self:_easeInOut(elapsedTime, start, change, DURATION)
+		self._setRelevantOffset(position)
+		if elapsedTime >= DURATION then
+			self._renderSteppedConnection:Disconnect()
+		end
+	end)
 end
 
 function ScrollViewer:_easeInOut(

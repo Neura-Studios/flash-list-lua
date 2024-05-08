@@ -776,8 +776,7 @@ function RecyclerListView:render()
 		Object.assign(
 			{
 				ref = function(scrollComponent)
-					self._scrollComponent = scrollComponent :: BaseScrollComponent | nil
-					return self._scrollComponent
+					self._scrollComponent = scrollComponent
 				end,
 			},
 			self.props,

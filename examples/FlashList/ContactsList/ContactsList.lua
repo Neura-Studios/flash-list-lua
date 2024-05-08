@@ -2,6 +2,9 @@ local React = require("@pkg/@jsdotlua/react")
 local FlashList = require("../../../src")
 
 local e = React.createElement
+local useRef = React.useRef
+
+local RNG = Random.new()
 
 local CONTACTS = require("./Data")
 local STICKY_HEADER_INDICES = {}
@@ -94,6 +97,8 @@ local function ItemSeparator()
 end
 
 local function ContactsList()
+	local listRef = useRef(nil :: any)
+
 	return e("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
@@ -105,6 +110,34 @@ local function ContactsList()
 			AspectRatio = 0.46,
 			AspectType = Enum.AspectType.ScaleWithParentSize,
 			DominantAxis = Enum.DominantAxis.Height,
+		}),
+
+		ScrollToIndex = e("TextButton", {
+			AnchorPoint = Vector2.new(0, 1),
+			Position = UDim2.fromOffset(0, -12),
+			AutomaticSize = Enum.AutomaticSize.XY,
+			BackgroundColor3 = Color3.new(0.9, 0.9, 0.9),
+			BorderSizePixel = 0,
+			Text = "Scroll to Random Index",
+			TextColor3 = Color3.new(0, 0, 0),
+			TextSize = 24,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			TextYAlignment = Enum.TextYAlignment.Center,
+			Font = Enum.Font.BuilderSansBold,
+			[React.Event.Activated] = function()
+				local index = RNG:NextInteger(1, #CONTACTS)
+				listRef.current.scrollToIndex({
+					index = index,
+					animated = true,
+				})
+			end,
+		}, {
+			InternalPadding = e("UIPadding", {
+				PaddingLeft = UDim.new(0, 12),
+				PaddingRight = UDim.new(0, 12),
+				PaddingTop = UDim.new(0, 6),
+				PaddingBottom = UDim.new(0, 6),
+			}),
 		}),
 
 		List = e(FlashList.FlashList, {
@@ -140,6 +173,7 @@ local function ContactsList()
 					return item_.id
 				end
 			end,
+			ref = listRef,
 		}),
 	})
 end

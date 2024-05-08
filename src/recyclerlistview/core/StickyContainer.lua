@@ -22,9 +22,7 @@ type ScrollEvent = BaseScrollView.ScrollEvent
 local StickyObject = require("./sticky/StickyObject")
 type StickyObjectProps = StickyObject.StickyObjectProps
 local StickyHeader = require("./sticky/StickyHeader")
-type StickyHeader = StickyHeader.StickyHeader
 local StickyFooter = require("./sticky/StickyFooter")
-type StickyFooter = StickyFooter.StickyFooter
 local CustomError = require("./exceptions/CustomError")
 local RecyclerListViewExceptions = require("./exceptions/RecyclerListViewExceptions")
 local LayoutManager = require("./layoutmanager/LayoutManager")
@@ -148,8 +146,8 @@ export type StickyContainer = {
 		index: number,
 		extendedState: (Object | Array<unknown>)?
 	) -> React.Node,
-	_stickyHeaderRef: StickyHeader | nil,
-	_stickyFooterRef: StickyFooter | nil,
+	_stickyHeaderRef: any | nil,
+	_stickyFooterRef: any | nil,
 	_visibleIndicesAll: Array<number>,
 	_windowCorrection: WindowCorrection,
 	_rlvRowRenderer: any,
@@ -423,6 +421,7 @@ function StickyContainer:render()
 		overrideRowRenderer = self.props.overrideRowRenderer,
 		renderContainer = self.props.renderStickyContainer,
 		getWindowCorrection = self._getCurrentWindowCorrection,
+		objectType = "header" :: "header",
 	}), self.props.stickyFooterIndices and React.createElement(StickyFooter, {
 		ref = function(stickyFooterRef: any)
 			return self._getStickyFooterRef(stickyFooterRef)
@@ -439,6 +438,7 @@ function StickyContainer:render()
 		renderContainer = self.props.renderStickyContainer,
 		getWindowCorrection = self._getCurrentWindowCorrection,
 		alwaysStickBottom = self.props.alwaysStickyFooter,
+		objectType = "footer" :: "footer",
 	}))
 end
 

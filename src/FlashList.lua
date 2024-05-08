@@ -431,7 +431,7 @@ function FlashList:init(props)
 				math.max(0, itemOffset - viewPosition * (fixedDimension - itemSize))
 
 			if self.rlvRef ~= nil then
-				self.rlvRef:scrollToOffset(
+				self.rlvRef.scrollToOffset(
 					scrollOffset,
 					scrollOffset,
 					params.animated,

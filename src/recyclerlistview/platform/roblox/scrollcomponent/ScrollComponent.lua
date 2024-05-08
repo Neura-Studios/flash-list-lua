@@ -147,19 +147,14 @@ function ScrollComponent:render()
 	local self = self :: ScrollComponent
 	local Scroller = self.props.externalScrollView :: any
 
-	local scrollerProps = Object.assign(
-		{
-			ref = function(scrollView: BaseScrollView)
-				return self._scrollViewRef
-			end,
-		},
-		self.props,
-		{
-			horizontal = self.props.isHorizontal,
-			onScroll = self._onScroll,
-			onSizeChanged = self._onSizeChanged,
-		}
-	)
+	local scrollerProps = Object.assign({}, self.props, {
+		horizontal = self.props.isHorizontal,
+		onScroll = self._onScroll,
+		onSizeChanged = self._onSizeChanged,
+		ref = function(scrollView: BaseScrollView)
+			self._scrollViewRef = scrollView
+		end,
+	})
 
 	local footerChild = self.props.renderFooter
 		and React.createElement("Frame", {
