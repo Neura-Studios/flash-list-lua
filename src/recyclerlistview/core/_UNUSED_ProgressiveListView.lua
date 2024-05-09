@@ -2,10 +2,7 @@
 
 --!nolint LocalShadow
 
-local RunService = game:GetService("RunService")
-
 local LuauPolyfill = require("@pkg/@jsdotlua/luau-polyfill")
-local extends = LuauPolyfill.extends
 local Object = LuauPolyfill.Object
 
 local React = require("@pkg/@jsdotlua/react")
@@ -120,12 +117,7 @@ function ProgressiveListView:updateRenderAheadProgressively(newVal: number): ()
 		end
 	end
 
-	-- NOTE: The list might be running in a storybook plugin. In which case, mock the update loop
-	if RunService:IsStudio() and not RunService:IsRunning() then
-		task.delay(0, updateLoop)
-	else
-		self.renderAheadUpdateConnection = RunService.RenderStepped:Once(updateLoop)
-	end
+	task.spawn(updateLoop)
 end
 
 function ProgressiveListView:incrementRenderAhead(): ()
@@ -155,7 +147,7 @@ end
 function ProgressiveListView:performFinalUpdate(): ()
 	self:cancelRenderAheadUpdate()
 	-- Cancel any pending callback.
-	self.renderAheadUpdateConnection = RunService.RenderStepped:Once(function()
+	task.spawn(function()
 		if self.props.finalRenderAheadOffset ~= nil then
 			self:updateRenderAheadOffset(self.props.finalRenderAheadOffset)
 		end

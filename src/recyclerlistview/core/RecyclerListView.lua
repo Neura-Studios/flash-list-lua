@@ -380,7 +380,7 @@ RecyclerListView.defaultProps = {
 
 function RecyclerListView:init(props)
 	self.refreshRequestDebouncer = function(callback)
-		task.delay(0, callback)
+		task.spawn(callback)
 	end
 	self._onEndReachedCalled = false
 	self._initComplete = false
@@ -1162,7 +1162,6 @@ function RecyclerListView:updateRenderAheadProgressively(newVal: number): ()
 		end
 	end
 
-	-- self.renderAheadUpdateConnection = RunService.RenderStepped:Once(updateLoop)
 	task.spawn(updateLoop)
 end
 
@@ -1199,7 +1198,6 @@ function RecyclerListView:performFinalUpdate(): ()
 		end
 	end
 
-	-- self.renderAheadUpdateConnection = RunService.RenderStepped:Once(updateLoop)
 	task.spawn(updateLoop)
 end
 
