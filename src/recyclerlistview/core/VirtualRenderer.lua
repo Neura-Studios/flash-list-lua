@@ -206,7 +206,7 @@ function VirtualRenderer_private.new(
 	end
 
 	self._onEngagedItemsChanged = function(
-		all: Array<number>,
+		_all: Array<number>,
 		now: Array<number>,
 		notNow: Array<number>
 	)

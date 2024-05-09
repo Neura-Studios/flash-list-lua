@@ -902,7 +902,7 @@ function FlashList.getLayoutProvider(
 			)
 		end
 
-		return if mutableLayout then mutableLayout.span else nil
+		return if mutableLayout then mutableLayout.size else nil
 	end, flashListProps)
 end
 
