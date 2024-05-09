@@ -223,16 +223,16 @@ function StickyObject:init(props)
 	self.stickyTypeMultiplier = 1
 	self.stickyVisibility = false
 	self.containerPosition = {}
-	self.currentIndex = 0
-	self.currentStickyIndex = 0
+	self.currentIndex = 1
+	self.currentStickyIndex = 1
 	self.visibleIndices = {}
 	self.bounceScrolling = false
 	self._stickyViewOffset = 0
-	self._previousStickyIndex = 0
+	self._previousStickyIndex = 1
 	self._nextStickyIndex = 0
 	self._firstCompute = true
-	self._smallestVisibleIndex = 0
-	self._largestVisibleIndex = 0
+	self._smallestVisibleIndex = 1
+	self._largestVisibleIndex = 1
 	self._offsetY = 0
 	self._windowCorrection = { startCorrection = 0, endCorrection = 0, windowShift = 0 }
 end
