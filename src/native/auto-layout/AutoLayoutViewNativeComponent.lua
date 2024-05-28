@@ -9,15 +9,15 @@ local React = require("@pkg/@jsdotlua/react")
 --  We need to implement that logic here if we want to support it too.
 
 local AutoLayoutViewNativeComponent = React.forwardRef(function(props: any, ref)
-	props = Object.assign({
+	local newProps = Object.assign({
 		-- Size = UDim2.fromScale(1, 1),
 		AutomaticSize = Enum.AutomaticSize.XY,
 		BackgroundTransparency = 1,
-	}, props)
+	})
 
 	return React.createElement(
 		"Frame",
-		Object.assign({}, props, { ref = ref }),
+		Object.assign({}, newProps, { ref = ref }),
 		props.children
 	)
 end)

@@ -145,7 +145,10 @@ end
 
 function ScrollComponent:render()
 	local self = self :: ScrollComponent
+
 	local Scroller = self.props.externalScrollView :: any
+	local renderContentContainer = self.props.renderContentContainer
+		or self._defaultContainer
 
 	local scrollerProps = Object.assign({}, self.props, {
 		horizontal = self.props.isHorizontal,
@@ -163,11 +166,17 @@ function ScrollComponent:render()
 		}, self.props.renderFooter())
 
 	return React.createElement(Scroller, scrollerProps, {
-		ChildrenContainer = React.createElement("Frame", {
-			Size = UDim2.fromOffset(self.props.contentWidth, self.props.contentHeight),
-			BackgroundTransparency = 1,
-		}, self.props.children, footerChild),
+		ContentContainer = renderContentContainer(self.props, self.props.children),
+	}, {
+		Footer = footerChild,
 	})
+end
+
+function ScrollComponent._defaultContainer(props: Props, children: React.ReactNode)
+	return React.createElement("Frame", {
+		Size = UDim2.fromOffset(props.contentWidth, props.contentHeight),
+		BackgroundTransparency = 1,
+	}, children)
 end
 
 function ScrollComponent:getScrollableNode()

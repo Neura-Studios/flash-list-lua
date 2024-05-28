@@ -481,14 +481,15 @@ function FlashList:init(props)
 		self.viewabilityManager:recordInteraction()
 	end
 
-	self.container = function(props: any, children: Array<React.Node>)
+	self.container = function(props: any, children: Array<React.ReactNode>)
 		self.clearPostLoadTimeout()
 
+		local childrenCount = React.Children.count(children)
 		return e(React.Fragment, {}, {
 			Header = e(PureComponentWrapper, {
 				enabled = (
 						self.isListLoaded
-						or #children > 0
+						or childrenCount > 0
 						or self.isEmptyList
 					) :: boolean,
 				contentStyle = self.props.contentContainerStyle,
@@ -517,7 +518,7 @@ function FlashList:init(props)
 			Footer = e(PureComponentWrapper, {
 				enabled = (
 						self.isListLoaded
-						or #children > 0
+						or childrenCount > 0
 						or self.isEmptyList
 					) :: boolean,
 				contentStyle = self.props.contentContainerStyle,
@@ -722,8 +723,8 @@ function FlashList:render()
 	local onEndReachedThreshold = self.props.onEndReachedThreshold
 	local estimatedListSize = self.props.estimatedListSize
 	local initialScrollIndex = self.props.initialScrollIndex
-	local style = self.props.style
-	local contentContainerStyle = self.props.contentContainerStyle
+	local _style = self.props.style
+	local _contentContainerStyle = self.props.contentContainerStyle
 	local renderScrollComponent = self.props.renderScrollComponent
 
 	-- RecyclerListView simply ignores if initialScrollIndex is set to 0 because it doesn't understand headers

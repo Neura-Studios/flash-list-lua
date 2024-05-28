@@ -38,15 +38,9 @@ end
 
 function PureComponentWrapper.render(self: PureComponentWrapper)
 	if self.overrideEnabled == nil then
-		local ref = if self.props.enabled
-			then self.props.renderer(self.props.arg)
-			else self.props.enabled
-		return ref
+		return if self.props.enabled then self.props.renderer(self.props.arg) else nil
 	else
-		local ref = if self.overrideEnabled
-			then self.props.renderer(self.props.arg)
-			else self.overrideEnabled
-		return ref
+		return if self.overrideEnabled then self.props.renderer(self.props.arg) else nil
 	end
 end
 
