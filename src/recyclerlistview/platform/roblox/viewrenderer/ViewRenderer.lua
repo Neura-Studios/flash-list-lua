@@ -166,12 +166,12 @@ function ViewRenderer:render()
 			BackgroundTransparency = 1,
 		}
 
-	local props = Object.assign(
-		{ ref = self._setRef },
-		styleProps,
-		self.props.styleOverrides,
-		self.animatorStyleOverrides
-	)
+	local props = Object.assign({
+		ref = self._setRef,
+		[React.Change.AbsoluteSize] = function()
+			self:_checkSizeChange()
+		end,
+	}, styleProps, self.props.styleOverrides, self.animatorStyleOverrides)
 
 	return self:_renderItemContainer(props, self.props, self:renderChild())
 end
