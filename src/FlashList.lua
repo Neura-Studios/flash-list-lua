@@ -486,20 +486,20 @@ function FlashList:init(props)
 
 		local childrenCount = React.Children.count(children)
 		return e(React.Fragment, {}, {
-			Header = e(PureComponentWrapper, {
-				enabled = (
-						self.isListLoaded
-						or childrenCount > 0
-						or self.isEmptyList
-					) :: boolean,
-				contentStyle = self.props.contentContainerStyle,
-				horizontal = self.props.horizontal,
-				header = self.props.ListHeaderComponent,
-				extraData = self.state.extraData,
-				headerStyle = self.props.ListHeaderComponentStyle,
-				inverted = self.props.inverted,
-				renderer = self.header,
-			}),
+			-- Header = e(PureComponentWrapper, {
+			-- 	enabled = (
+			-- 			self.isListLoaded
+			-- 			or childrenCount > 0
+			-- 			or self.isEmptyList
+			-- 		) :: boolean,
+			-- 	contentStyle = self.props.contentContainerStyle,
+			-- 	horizontal = self.props.horizontal,
+			-- 	header = self.props.ListHeaderComponent,
+			-- 	extraData = self.state.extraData,
+			-- 	headerStyle = self.props.ListHeaderComponentStyle,
+			-- 	inverted = self.props.inverted,
+			-- 	renderer = self.header,
+			-- }),
 
 			Content = e(
 				AutoLayoutView,
@@ -515,20 +515,20 @@ function FlashList:init(props)
 				then self:getValidComponent(self.props.ListEmptyComponent)
 				else nil,
 
-			Footer = e(PureComponentWrapper, {
-				enabled = (
-						self.isListLoaded
-						or childrenCount > 0
-						or self.isEmptyList
-					) :: boolean,
-				contentStyle = self.props.contentContainerStyle,
-				horizontal = self.props.horizontal,
-				header = self.props.ListFooterComponent,
-				extraData = self.state.extraData,
-				headerStyle = self.props.ListFooterComponentStyle,
-				inverted = self.props.inverted,
-				renderer = self.footer,
-			}),
+			-- Footer = e(PureComponentWrapper, {
+			-- 	enabled = (
+			-- 			self.isListLoaded
+			-- 			or childrenCount > 0
+			-- 			or self.isEmptyList
+			-- 		) :: boolean,
+			-- 	contentStyle = self.props.contentContainerStyle,
+			-- 	horizontal = self.props.horizontal,
+			-- 	header = self.props.ListFooterComponent,
+			-- 	extraData = self.state.extraData,
+			-- 	headerStyle = self.props.ListFooterComponentStyle,
+			-- 	inverted = self.props.inverted,
+			-- 	renderer = self.footer,
+			-- }),
 
 			HeightMeasurement = self.getComponentForHeightMeasurement(),
 		})
