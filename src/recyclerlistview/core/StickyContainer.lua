@@ -384,7 +384,7 @@ function StickyContainer:init(props: Props, context: any?)
 	self:_getWindowCorrection(0, 0, props)
 end
 
-function StickyContainer:componentDidUpdate(): ()
+function StickyContainer:UNSAFE_componentWillReceiveProps(): ()
 	self._initParams(self.props)
 end
 
