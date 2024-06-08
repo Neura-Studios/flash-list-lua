@@ -16,6 +16,14 @@ Swap from FlatList in seconds. Get instant performance.
 
 </div>
 
+> ### ⚠️ **Here Be Dragons 🐉**
+>
+> FlashList-Lua is not yet ready for real-world use, and this repository is only open due to high demand. I will be away until early August and won't be around to work on the project until then.
+>
+> We are still testing FlashList inside of Clip It. We've deployed simple cases in production, but are still ironining out the bugs.
+>
+> **Also note** that the GitHub releases are broken. At the time of writing, the latest release on Wally is `rc.7`.
+
 ## Installation
 
 FlashList Lua supports installation via NPM or Wally.
